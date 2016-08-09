@@ -18,6 +18,7 @@
     <module>io7m-jaffirm-checkstyle</module>
     <module>io7m-jaffirm-core</module>
     <module>io7m-jaffirm-documentation</module>
+    <module>io7m-jaffirm-tests</module>
   </modules>
 
   <properties>

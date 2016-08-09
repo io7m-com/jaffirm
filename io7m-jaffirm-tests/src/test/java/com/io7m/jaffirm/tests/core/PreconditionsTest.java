@@ -88,7 +88,7 @@ public final class PreconditionsTest
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
   }
 
   @Test
@@ -103,7 +103,7 @@ public final class PreconditionsTest
         x -> {
           throw new RuntimeException("OUCH");
         },
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
   }
 
   @Test
@@ -116,7 +116,7 @@ public final class PreconditionsTest
       Integer.valueOf(23),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
   }
 
   @Test
@@ -129,10 +129,10 @@ public final class PreconditionsTest
       Integer.valueOf(23),
       Contracts.condition(
         x -> x.intValue() > 23,
-        x -> format("Value %d must be > 23", x)),
+        x -> String.format("Value %d must be > 23", x)),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
   }
 
   @Test
@@ -145,10 +145,10 @@ public final class PreconditionsTest
       Integer.valueOf(23),
       Contracts.condition(
         x -> x.intValue() == 23,
-        x -> format("Value %d must be == 23", x)),
+        x -> String.format("Value %d must be == 23", x)),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
   }
 
   @Test
@@ -161,10 +161,10 @@ public final class PreconditionsTest
       Integer.valueOf(23),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)),
+        x -> String.format("Value %d must be < 23", x)),
       Contracts.condition(
         x -> x.intValue() == 23,
-        x -> format("Value %d must be == 23", x)));
+        x -> String.format("Value %d must be == 23", x)));
   }
 
   @Test
@@ -174,10 +174,10 @@ public final class PreconditionsTest
       Integer.valueOf(22),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)),
+        x -> String.format("Value %d must be < 23", x)),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
 
     Assert.assertEquals(Integer.valueOf(22), r);
   }
@@ -734,7 +734,7 @@ public final class PreconditionsTest
       Integer.valueOf(23),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
   }
 
   @Test
@@ -802,7 +802,7 @@ public final class PreconditionsTest
       Integer.valueOf(22),
       Contracts.condition(
         x -> x.intValue() < 23,
-        x -> format("Value %d must be < 23", x)));
+        x -> String.format("Value %d must be < 23", x)));
 
     Assert.assertEquals(Integer.valueOf(22), r);
   }
@@ -1093,7 +1093,7 @@ public final class PreconditionsTest
     this.expected.expect(new ViolationMatcher(1));
 
     Preconditions.checkPrecondition(
-      Integer.valueOf(23), 23 < 23, x -> format("Value %d must < 23", x));
+      Integer.valueOf(23), 23 < 23, x -> String.format("Value %d must < 23", x));
   }
 
   @Test
@@ -1112,7 +1112,7 @@ public final class PreconditionsTest
   public void testPreconditionSimple2()
   {
     final Integer r = Preconditions.checkPrecondition(
-      Integer.valueOf(22), true, x -> format("Value %d must < 23", x));
+      Integer.valueOf(22), true, x -> String.format("Value %d must < 23", x));
 
     Assert.assertEquals(Integer.valueOf(22), r);
   }
