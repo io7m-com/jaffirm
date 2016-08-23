@@ -775,19 +775,18 @@ public final class Postconditions
     throw new PostconditionViolationException(sb.toString(), violations.count);
   }
 
-  // CHECKSTYLE:OFF
   private static final class Violations
   {
-    final String[] messages;
-    int count;
+    private final String[] messages;
+    private int count;
 
-    Violations(final int expected)
+    private Violations(final int expected)
     {
       this.messages = new String[expected];
       this.count = 0;
     }
 
-    static Violations one(
+    private static Violations one(
       final String message)
     {
       final Violations violations = new Violations(1);
@@ -796,5 +795,4 @@ public final class Postconditions
       return violations;
     }
   }
-  // CHECKSTYLE:ON
 }
