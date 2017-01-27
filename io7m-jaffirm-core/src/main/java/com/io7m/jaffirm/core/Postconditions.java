@@ -66,9 +66,9 @@ public final class Postconditions
     final ContractConditionType<T>... conditions)
     throws PostconditionViolationException
   {
-    final Violations violations = Postconditions.checkAll(value, conditions);
+    final Violations violations = checkAll(value, conditions);
     if (violations != null) {
-      throw Postconditions.postconditionsFailed(value, violations);
+      throw postconditionsFailed(value, violations);
     }
     return value;
   }
@@ -91,9 +91,9 @@ public final class Postconditions
     throws PostconditionViolationException
   {
     final Violations violations =
-      Postconditions.checkAllInt(value, conditions);
+      checkAllInt(value, conditions);
     if (violations != null) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Integer.valueOf(value),
         violations);
     }
@@ -118,9 +118,9 @@ public final class Postconditions
     throws PostconditionViolationException
   {
     final Violations violations =
-      Postconditions.checkAllLong(value, conditions);
+      checkAllLong(value, conditions);
     if (violations != null) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Long.valueOf(value),
         violations);
     }
@@ -144,10 +144,9 @@ public final class Postconditions
     final ContractDoubleConditionType... conditions)
     throws PostconditionViolationException
   {
-    final Violations violations =
-      Postconditions.checkAllDouble(value, conditions);
+    final Violations violations = checkAllDouble(value, conditions);
     if (violations != null) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Double.valueOf(value),
         violations);
     }
@@ -174,7 +173,7 @@ public final class Postconditions
     final ContractConditionType<T> condition)
     throws PostconditionViolationException
   {
-    return Postconditions.checkPostcondition(
+    return checkPostcondition(
       value, condition.predicate(), condition.describer());
   }
 
@@ -203,11 +202,11 @@ public final class Postconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Postconditions.postconditionsFailed(
-        value, Violations.one(Postconditions.failedPredicate(e)));
+      throw postconditionsFailed(
+        value, Violations.one(failedPredicate(e)));
     }
 
-    return Postconditions.checkPostcondition(value, ok, describer);
+    return checkPostcondition(value, ok, describer);
   }
 
   /**
@@ -232,8 +231,8 @@ public final class Postconditions
     final Function<T, String> describer)
   {
     if (!condition) {
-      throw Postconditions.postconditionsFailed(value, Violations.one(
-        Postconditions.applyDescriberChecked(value, describer)));
+      throw postconditionsFailed(value, Violations.one(
+        applyDescriberChecked(value, describer)));
     }
     return value;
   }
@@ -254,7 +253,7 @@ public final class Postconditions
     throws PostconditionViolationException
   {
     if (!condition) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         "<unspecified>", Violations.one(message));
     }
   }
@@ -275,9 +274,9 @@ public final class Postconditions
     throws PostconditionViolationException
   {
     if (!condition) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         "<unspecified>",
-        Violations.one(Postconditions.applySupplierChecked(message)));
+        Violations.one(applySupplierChecked(message)));
     }
   }
 
@@ -298,7 +297,7 @@ public final class Postconditions
     final ContractIntConditionType condition)
     throws PostconditionViolationException
   {
-    return Postconditions.checkPostconditionI(
+    return checkPostconditionI(
       value, condition.predicate(), condition.describer());
   }
 
@@ -324,12 +323,12 @@ public final class Postconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Integer.valueOf(value),
-        Violations.one(Postconditions.failedPredicate(e)));
+        Violations.one(failedPredicate(e)));
     }
 
-    return Postconditions.checkPostconditionI(value, ok, describer);
+    return checkPostconditionI(value, ok, describer);
   }
 
   /**
@@ -351,9 +350,9 @@ public final class Postconditions
     final IntFunction<String> describer)
   {
     if (!condition) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Integer.valueOf(value),
-        Violations.one(Postconditions.applyDescriberIChecked(
+        Violations.one(applyDescriberIChecked(
           value,
           describer)));
     }
@@ -377,7 +376,7 @@ public final class Postconditions
     final ContractLongConditionType condition)
     throws PostconditionViolationException
   {
-    return Postconditions.checkPostconditionL(
+    return checkPostconditionL(
       value,
       condition.predicate(),
       condition.describer());
@@ -405,12 +404,12 @@ public final class Postconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Long.valueOf(value),
-        Violations.one(Postconditions.failedPredicate(e)));
+        Violations.one(failedPredicate(e)));
     }
 
-    return Postconditions.checkPostconditionL(value, ok, describer);
+    return checkPostconditionL(value, ok, describer);
   }
 
   /**
@@ -432,9 +431,9 @@ public final class Postconditions
     final LongFunction<String> describer)
   {
     if (!condition) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Long.valueOf(value),
-        Violations.one(Postconditions.applyDescriberLChecked(
+        Violations.one(applyDescriberLChecked(
           value,
           describer)));
     }
@@ -458,7 +457,7 @@ public final class Postconditions
     final ContractDoubleConditionType condition)
     throws PostconditionViolationException
   {
-    return Postconditions.checkPostconditionD(
+    return checkPostconditionD(
       value, condition.predicate(), condition.describer());
   }
 
@@ -484,12 +483,12 @@ public final class Postconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Double.valueOf(value),
-        Violations.one(Postconditions.failedPredicate(e)));
+        Violations.one(failedPredicate(e)));
     }
 
-    return Postconditions.checkPostconditionD(value, ok, describer);
+    return checkPostconditionD(value, ok, describer);
   }
 
   /**
@@ -511,9 +510,9 @@ public final class Postconditions
     final DoubleFunction<String> describer)
   {
     if (!condition) {
-      throw Postconditions.postconditionsFailed(
+      throw postconditionsFailed(
         Double.valueOf(value),
-        Violations.one(Postconditions.applyDescriberDChecked(
+        Violations.one(applyDescriberDChecked(
           value,
           describer)));
     }
@@ -535,16 +534,16 @@ public final class Postconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Postconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Postconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Postconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Postconditions.applyDescriberChecked(value, condition.describer());
+          applyDescriberChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -566,16 +565,16 @@ public final class Postconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Postconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Postconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Postconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Postconditions.applyDescriberIChecked(value, condition.describer());
+          applyDescriberIChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -597,16 +596,16 @@ public final class Postconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Postconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Postconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Postconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Postconditions.applyDescriberLChecked(value, condition.describer());
+          applyDescriberLChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -628,16 +627,16 @@ public final class Postconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Postconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Postconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Postconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Postconditions.applyDescriberDChecked(value, condition.describer());
+          applyDescriberDChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -657,7 +656,7 @@ public final class Postconditions
     try {
       return message.get();
     } catch (final Throwable e) {
-      return Postconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -668,7 +667,7 @@ public final class Postconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Postconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -679,7 +678,7 @@ public final class Postconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Postconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -690,7 +689,7 @@ public final class Postconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Postconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -701,21 +700,21 @@ public final class Postconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Postconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
   private static <T> String failedPredicate(
     final Throwable exception)
   {
-    return Postconditions.failedApply(
+    return failedApply(
       exception, "Exception raised whilst evaluating predicate: ");
   }
 
   private static String failedDescriber(
     final Throwable exception)
   {
-    return Postconditions.failedApply(
+    return failedApply(
       exception, "Exception raised whilst evaluating describer: ");
   }
 
@@ -734,7 +733,7 @@ public final class Postconditions
     sb.append(exception.getMessage());
     sb.append(System.lineSeparator());
     sb.append(System.lineSeparator());
-    Postconditions.stackTraceToStringBuilder(exception, sb);
+    stackTraceToStringBuilder(exception, sb);
     return sb.toString();
   }
 

@@ -66,9 +66,9 @@ public final class Preconditions
     final ContractConditionType<T>... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations = Preconditions.checkAll(value, conditions);
+    final Violations violations = checkAll(value, conditions);
     if (violations != null) {
-      throw Preconditions.preconditionsFailed(value, violations);
+      throw preconditionsFailed(value, violations);
     }
     return value;
   }
@@ -90,12 +90,9 @@ public final class Preconditions
     final ContractIntConditionType... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations =
-      Preconditions.checkAllInt(value, conditions);
+    final Violations violations = checkAllInt(value, conditions);
     if (violations != null) {
-      throw Preconditions.preconditionsFailed(
-        Integer.valueOf(value),
-        violations);
+      throw preconditionsFailed(Integer.valueOf(value), violations);
     }
     return value;
   }
@@ -117,10 +114,9 @@ public final class Preconditions
     final ContractLongConditionType... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations =
-      Preconditions.checkAllLong(value, conditions);
+    final Violations violations = checkAllLong(value, conditions);
     if (violations != null) {
-      throw Preconditions.preconditionsFailed(Long.valueOf(value), violations);
+      throw preconditionsFailed(Long.valueOf(value), violations);
     }
     return value;
   }
@@ -142,12 +138,9 @@ public final class Preconditions
     final ContractDoubleConditionType... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations =
-      Preconditions.checkAllDouble(value, conditions);
+    final Violations violations = checkAllDouble(value, conditions);
     if (violations != null) {
-      throw Preconditions.preconditionsFailed(
-        Double.valueOf(value),
-        violations);
+      throw preconditionsFailed(Double.valueOf(value), violations);
     }
     return value;
   }
@@ -172,7 +165,7 @@ public final class Preconditions
     final ContractConditionType<T> condition)
     throws PreconditionViolationException
   {
-    return Preconditions.checkPrecondition(
+    return checkPrecondition(
       value, condition.predicate(), condition.describer());
   }
 
@@ -201,11 +194,10 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Preconditions.preconditionsFailed(
-        value, Violations.one(Preconditions.failedPredicate(e)));
+      throw preconditionsFailed(value, Violations.one(failedPredicate(e)));
     }
 
-    return Preconditions.checkPrecondition(value, ok, describer);
+    return checkPrecondition(value, ok, describer);
   }
 
   /**
@@ -230,8 +222,8 @@ public final class Preconditions
     final Function<T, String> describer)
   {
     if (!condition) {
-      throw Preconditions.preconditionsFailed(value, Violations.one(
-        Preconditions.applyDescriberChecked(value, describer)));
+      throw preconditionsFailed(value, Violations.one(
+        applyDescriberChecked(value, describer)));
     }
     return value;
   }
@@ -252,7 +244,7 @@ public final class Preconditions
     throws PreconditionViolationException
   {
     if (!condition) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         "<unspecified>", Violations.one(message));
     }
   }
@@ -273,9 +265,9 @@ public final class Preconditions
     throws PreconditionViolationException
   {
     if (!condition) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         "<unspecified>",
-        Violations.one(Preconditions.applySupplierChecked(message)));
+        Violations.one(applySupplierChecked(message)));
     }
   }
 
@@ -296,7 +288,7 @@ public final class Preconditions
     final ContractIntConditionType condition)
     throws PreconditionViolationException
   {
-    return Preconditions.checkPreconditionI(
+    return checkPreconditionI(
       value, condition.predicate(), condition.describer());
   }
 
@@ -322,12 +314,11 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Preconditions.preconditionsFailed(
-        Integer.valueOf(value),
-        Violations.one(Preconditions.failedPredicate(e)));
+      throw preconditionsFailed(
+        Integer.valueOf(value), Violations.one(failedPredicate(e)));
     }
 
-    return Preconditions.checkPreconditionI(value, ok, describer);
+    return checkPreconditionI(value, ok, describer);
   }
 
   /**
@@ -349,9 +340,9 @@ public final class Preconditions
     final IntFunction<String> describer)
   {
     if (!condition) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         Integer.valueOf(value),
-        Violations.one(Preconditions.applyDescriberIChecked(value, describer)));
+        Violations.one(applyDescriberIChecked(value, describer)));
     }
     return value;
   }
@@ -373,7 +364,7 @@ public final class Preconditions
     final ContractLongConditionType condition)
     throws PreconditionViolationException
   {
-    return Preconditions.checkPreconditionL(
+    return checkPreconditionL(
       value,
       condition.predicate(),
       condition.describer());
@@ -401,12 +392,12 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         Long.valueOf(value),
-        Violations.one(Preconditions.failedPredicate(e)));
+        Violations.one(failedPredicate(e)));
     }
 
-    return Preconditions.checkPreconditionL(value, ok, describer);
+    return checkPreconditionL(value, ok, describer);
   }
 
   /**
@@ -428,9 +419,9 @@ public final class Preconditions
     final LongFunction<String> describer)
   {
     if (!condition) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         Long.valueOf(value),
-        Violations.one(Preconditions.applyDescriberLChecked(value, describer)));
+        Violations.one(applyDescriberLChecked(value, describer)));
     }
     return value;
   }
@@ -452,7 +443,7 @@ public final class Preconditions
     final ContractDoubleConditionType condition)
     throws PreconditionViolationException
   {
-    return Preconditions.checkPreconditionD(
+    return checkPreconditionD(
       value, condition.predicate(), condition.describer());
   }
 
@@ -478,12 +469,12 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         Double.valueOf(value),
-        Violations.one(Preconditions.failedPredicate(e)));
+        Violations.one(failedPredicate(e)));
     }
 
-    return Preconditions.checkPreconditionD(value, ok, describer);
+    return checkPreconditionD(value, ok, describer);
   }
 
   /**
@@ -505,9 +496,9 @@ public final class Preconditions
     final DoubleFunction<String> describer)
   {
     if (!condition) {
-      throw Preconditions.preconditionsFailed(
+      throw preconditionsFailed(
         Double.valueOf(value),
-        Violations.one(Preconditions.applyDescriberDChecked(value, describer)));
+        Violations.one(applyDescriberDChecked(value, describer)));
     }
     return value;
   }
@@ -527,16 +518,16 @@ public final class Preconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Preconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Preconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Preconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Preconditions.applyDescriberChecked(value, condition.describer());
+          applyDescriberChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -558,16 +549,16 @@ public final class Preconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Preconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Preconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Preconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Preconditions.applyDescriberIChecked(value, condition.describer());
+          applyDescriberIChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -589,16 +580,16 @@ public final class Preconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Preconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Preconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Preconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Preconditions.applyDescriberLChecked(value, condition.describer());
+          applyDescriberLChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -620,16 +611,16 @@ public final class Preconditions
       try {
         ok = predicate.test(value);
       } catch (final Throwable e) {
-        violations = Preconditions.maybeAllocate(violations, count);
-        violations.messages[index] = Preconditions.failedPredicate(e);
+        violations = maybeAllocate(violations, count);
+        violations.messages[index] = failedPredicate(e);
         ++violations.count;
         continue;
       }
 
       if (!ok) {
-        violations = Preconditions.maybeAllocate(violations, count);
+        violations = maybeAllocate(violations, count);
         violations.messages[index] =
-          Preconditions.applyDescriberDChecked(value, condition.describer());
+          applyDescriberDChecked(value, condition.describer());
         ++violations.count;
       }
     }
@@ -649,7 +640,7 @@ public final class Preconditions
     try {
       return message.get();
     } catch (final Throwable e) {
-      return Preconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -660,7 +651,7 @@ public final class Preconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Preconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -671,7 +662,7 @@ public final class Preconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Preconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -682,7 +673,7 @@ public final class Preconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Preconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
@@ -693,21 +684,21 @@ public final class Preconditions
     try {
       return describer.apply(value);
     } catch (final Throwable e) {
-      return Preconditions.failedDescriber(e);
+      return failedDescriber(e);
     }
   }
 
   private static <T> String failedPredicate(
     final Throwable exception)
   {
-    return Preconditions.failedApply(
+    return failedApply(
       exception, "Exception raised whilst evaluating predicate: ");
   }
 
   private static String failedDescriber(
     final Throwable exception)
   {
-    return Preconditions.failedApply(
+    return failedApply(
       exception, "Exception raised whilst evaluating describer: ");
   }
 
@@ -726,7 +717,7 @@ public final class Preconditions
     sb.append(exception.getMessage());
     sb.append(System.lineSeparator());
     sb.append(System.lineSeparator());
-    Preconditions.stackTraceToStringBuilder(exception, sb);
+    stackTraceToStringBuilder(exception, sb);
     return sb.toString();
   }
 
