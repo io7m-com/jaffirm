@@ -48,7 +48,7 @@
     <module name="AvoidNestedBlocks"/>
     -->
     <module name="AvoidStarImport"/>
-    <module name="AvoidStaticImport"/>
+    <!--<module name="AvoidStaticImport"/> -->
     <module name="BooleanExpressionComplexity"/>
     <module name="ClassDataAbstractionCoupling">
       <property name="max" value="35"/>

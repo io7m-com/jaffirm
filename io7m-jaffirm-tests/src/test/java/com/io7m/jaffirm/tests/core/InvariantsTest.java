@@ -1117,7 +1117,9 @@ public final class InvariantsTest
     this.expected.expect(new ViolationMatcher(1));
 
     Invariants.checkInvariant(
-      Integer.valueOf(23), 23 < 23, x -> String.format("Value %d must < 23", x));
+      Integer.valueOf(23),
+      23 < 23,
+      x -> String.format("Value %d must < 23", x));
   }
 
   @Test
