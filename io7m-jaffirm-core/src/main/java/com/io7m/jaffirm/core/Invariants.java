@@ -20,6 +20,7 @@ import com.io7m.junreachable.UnreachableCodeException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
@@ -68,7 +69,7 @@ public final class Invariants
   {
     final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
-      throw invariantsFailed(value, violations);
+      throw invariantsFailed(value, Optional.empty(), violations);
     }
     return value;
   }
@@ -94,8 +95,7 @@ public final class Invariants
       innerCheckAllInt(value, conditions);
     if (violations != null) {
       throw invariantsFailed(
-        Integer.valueOf(value),
-        violations);
+        Integer.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -120,7 +120,7 @@ public final class Invariants
     final Violations violations =
       innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw invariantsFailed(Long.valueOf(value), violations);
+      throw invariantsFailed(Long.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -146,8 +146,7 @@ public final class Invariants
       innerCheckAllDouble(value, conditions);
     if (violations != null) {
       throw invariantsFailed(
-        Double.valueOf(value),
-        violations);
+        Double.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -201,7 +200,7 @@ public final class Invariants
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw invariantsFailed(
-        value, Violations.one(failedPredicate(e)));
+        value, Optional.empty(), Violations.one(failedPredicate(e)));
     }
 
     return innerCheckInvariant(value, ok, describer);
@@ -248,7 +247,7 @@ public final class Invariants
   {
     if (!condition) {
       throw invariantsFailed(
-        "<unspecified>", Violations.one(message));
+        "<unspecified>", Optional.empty(), Violations.one(message));
     }
   }
 
@@ -270,6 +269,7 @@ public final class Invariants
     if (!condition) {
       throw invariantsFailed(
         "<unspecified>",
+        Optional.empty(),
         Violations.one(applySupplierChecked(message)));
     }
   }
@@ -319,6 +319,7 @@ public final class Invariants
     } catch (final Throwable e) {
       throw invariantsFailed(
         Integer.valueOf(value),
+        Optional.empty(),
         Violations.one(failedPredicate(e)));
     }
 
@@ -390,6 +391,7 @@ public final class Invariants
     } catch (final Throwable e) {
       throw invariantsFailed(
         Long.valueOf(value),
+        Optional.empty(),
         Violations.one(failedPredicate(e)));
     }
 
@@ -461,6 +463,7 @@ public final class Invariants
     } catch (final Throwable e) {
       throw invariantsFailed(
         Double.valueOf(value),
+        Optional.empty(),
         Violations.one(failedPredicate(e)));
     }
 
@@ -494,7 +497,7 @@ public final class Invariants
     final Function<T, String> describer)
   {
     if (!condition) {
-      throw invariantsFailed(value, Violations.one(
+      throw invariantsFailed(value, Optional.empty(), Violations.one(
         applyDescriberChecked(value, describer)));
     }
     return value;
@@ -508,6 +511,7 @@ public final class Invariants
     if (!condition) {
       throw invariantsFailed(
         Double.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberDChecked(value, describer)));
     }
     return value;
@@ -521,6 +525,7 @@ public final class Invariants
     if (!condition) {
       throw invariantsFailed(
         Long.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberLChecked(value, describer)));
     }
     return value;
@@ -534,6 +539,7 @@ public final class Invariants
     if (!condition) {
       throw invariantsFailed(
         Integer.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberIChecked(value, describer)));
     }
     return value;
@@ -769,14 +775,23 @@ public final class Invariants
 
   private static <T> InvariantViolationException invariantsFailed(
     final T value,
+    final Optional<T> expected,
     final Violations violations)
   {
     final StringBuilder sb = new StringBuilder(128);
     sb.append("Invariant violation.");
     sb.append(System.lineSeparator());
+
     sb.append("  Received: ");
     sb.append(value);
     sb.append(System.lineSeparator());
+
+    if (expected.isPresent()) {
+      sb.append("  Expected: ");
+      sb.append(expected.get());
+      sb.append(System.lineSeparator());
+    }
+
     sb.append("  Violated conditions: ");
     sb.append(System.lineSeparator());
 

@@ -20,6 +20,7 @@ import com.io7m.junreachable.UnreachableCodeException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
@@ -68,7 +69,7 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(value, violations);
+      throw postconditionsFailed(value, Optional.empty(), violations);
     }
     return value;
   }
@@ -92,7 +93,8 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAllInt(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(Integer.valueOf(value), violations);
+      throw postconditionsFailed(
+        Integer.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -116,7 +118,8 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(Long.valueOf(value), violations);
+      throw postconditionsFailed(
+        Long.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -140,7 +143,8 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAllDouble(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(Double.valueOf(value), violations);
+      throw postconditionsFailed(
+        Double.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -195,7 +199,7 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        value, Violations.one(failedPredicate(e)));
+        value, Optional.empty(), Violations.one(failedPredicate(e)));
     }
 
     return innerCheck(value, ok, describer);
@@ -242,7 +246,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw postconditionsFailed(
-        "<unspecified>", Violations.one(message));
+        "<unspecified>", Optional.empty(), Violations.one(message));
     }
   }
 
@@ -264,6 +268,7 @@ public final class Postconditions
     if (!condition) {
       throw postconditionsFailed(
         "<unspecified>",
+        Optional.empty(),
         Violations.one(applySupplierChecked(message)));
     }
   }
@@ -312,7 +317,9 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        Integer.valueOf(value), Violations.one(failedPredicate(e)));
+        Integer.valueOf(value),
+        Optional.empty(),
+        Violations.one(failedPredicate(e)));
     }
 
     return innerCheckI(value, ok, describer);
@@ -383,7 +390,9 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        Long.valueOf(value), Violations.one(failedPredicate(e)));
+        Long.valueOf(value),
+        Optional.empty(),
+        Violations.one(failedPredicate(e)));
     }
 
     return innerCheckL(value, ok, describer);
@@ -454,7 +463,9 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        Double.valueOf(value), Violations.one(failedPredicate(e)));
+        Double.valueOf(value),
+        Optional.empty(),
+        Violations.one(failedPredicate(e)));
     }
 
     return innerCheckD(value, ok, describer);
@@ -489,6 +500,7 @@ public final class Postconditions
     if (!condition) {
       throw postconditionsFailed(
         Double.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberDChecked(value, describer)));
     }
     return value;
@@ -502,9 +514,8 @@ public final class Postconditions
     if (!condition) {
       throw postconditionsFailed(
         Long.valueOf(value),
-        Violations.one(applyDescriberLChecked(
-          value,
-          describer)));
+        Optional.empty(),
+        Violations.one(applyDescriberLChecked(value, describer)));
     }
     return value;
   }
@@ -517,9 +528,8 @@ public final class Postconditions
     if (!condition) {
       throw postconditionsFailed(
         Integer.valueOf(value),
-        Violations.one(applyDescriberIChecked(
-          value,
-          describer)));
+        Optional.empty(),
+        Violations.one(applyDescriberIChecked(value, describer)));
     }
     return value;
   }
@@ -530,8 +540,10 @@ public final class Postconditions
     final Function<T, String> describer)
   {
     if (!condition) {
-      throw postconditionsFailed(value, Violations.one(
-        applyDescriberChecked(value, describer)));
+      throw postconditionsFailed(
+        value,
+        Optional.empty(),
+        Violations.one(applyDescriberChecked(value, describer)));
     }
     return value;
   }
@@ -766,14 +778,23 @@ public final class Postconditions
 
   private static <T> PostconditionViolationException postconditionsFailed(
     final T value,
+    final Optional<T> expected,
     final Violations violations)
   {
     final StringBuilder sb = new StringBuilder(128);
     sb.append("Postcondition violation.");
     sb.append(System.lineSeparator());
+
     sb.append("  Received: ");
     sb.append(value);
     sb.append(System.lineSeparator());
+
+    if (expected.isPresent()) {
+      sb.append("  Expected: ");
+      sb.append(expected.get());
+      sb.append(System.lineSeparator());
+    }
+
     sb.append("  Violated conditions: ");
     sb.append(System.lineSeparator());
 

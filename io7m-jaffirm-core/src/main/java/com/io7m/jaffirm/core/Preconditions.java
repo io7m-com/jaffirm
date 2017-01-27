@@ -20,6 +20,7 @@ import com.io7m.junreachable.UnreachableCodeException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
@@ -68,7 +69,7 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
-      throw preconditionsFailed(value, violations);
+      throw preconditionsFailed(value, Optional.empty(), violations);
     }
     return value;
   }
@@ -92,7 +93,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAllInt(value, conditions);
     if (violations != null) {
-      throw preconditionsFailed(Integer.valueOf(value), violations);
+      throw preconditionsFailed(
+        Integer.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -116,7 +118,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw preconditionsFailed(Long.valueOf(value), violations);
+      throw preconditionsFailed(
+        Long.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -140,7 +143,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAllDouble(value, conditions);
     if (violations != null) {
-      throw preconditionsFailed(Double.valueOf(value), violations);
+      throw preconditionsFailed(
+        Double.valueOf(value), Optional.empty(), violations);
     }
     return value;
   }
@@ -194,7 +198,8 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw preconditionsFailed(value, Violations.one(failedPredicate(e)));
+      throw preconditionsFailed(
+        value, Optional.empty(), Violations.one(failedPredicate(e)));
     }
 
     return innerCheck(value, ok, describer);
@@ -241,7 +246,7 @@ public final class Preconditions
   {
     if (!condition) {
       throw preconditionsFailed(
-        "<unspecified>", Violations.one(message));
+        "<unspecified>", Optional.empty(), Violations.one(message));
     }
   }
 
@@ -263,6 +268,7 @@ public final class Preconditions
     if (!condition) {
       throw preconditionsFailed(
         "<unspecified>",
+        Optional.empty(),
         Violations.one(applySupplierChecked(message)));
     }
   }
@@ -311,7 +317,9 @@ public final class Preconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw preconditionsFailed(
-        Integer.valueOf(value), Violations.one(failedPredicate(e)));
+        Integer.valueOf(value),
+        Optional.empty(),
+        Violations.one(failedPredicate(e)));
     }
 
     return innerCheckI(value, ok, describer);
@@ -383,6 +391,7 @@ public final class Preconditions
     } catch (final Throwable e) {
       throw preconditionsFailed(
         Long.valueOf(value),
+        Optional.empty(),
         Violations.one(failedPredicate(e)));
     }
 
@@ -455,6 +464,7 @@ public final class Preconditions
     } catch (final Throwable e) {
       throw preconditionsFailed(
         Double.valueOf(value),
+        Optional.empty(),
         Violations.one(failedPredicate(e)));
     }
 
@@ -488,8 +498,10 @@ public final class Preconditions
     final Function<T, String> describer)
   {
     if (!condition) {
-      throw preconditionsFailed(value, Violations.one(
-        applyDescriberChecked(value, describer)));
+      throw preconditionsFailed(
+        value,
+        Optional.empty(),
+        Violations.one(applyDescriberChecked(value, describer)));
     }
     return value;
   }
@@ -502,6 +514,7 @@ public final class Preconditions
     if (!condition) {
       throw preconditionsFailed(
         Integer.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberIChecked(value, describer)));
     }
     return value;
@@ -515,6 +528,7 @@ public final class Preconditions
     if (!condition) {
       throw preconditionsFailed(
         Long.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberLChecked(value, describer)));
     }
     return value;
@@ -528,6 +542,7 @@ public final class Preconditions
     if (!condition) {
       throw preconditionsFailed(
         Double.valueOf(value),
+        Optional.empty(),
         Violations.one(applyDescriberDChecked(value, describer)));
     }
     return value;
@@ -763,14 +778,23 @@ public final class Preconditions
 
   private static <T> PreconditionViolationException preconditionsFailed(
     final T value,
+    final Optional<T> expected,
     final Violations violations)
   {
     final StringBuilder sb = new StringBuilder(128);
     sb.append("Precondition violation.");
     sb.append(System.lineSeparator());
+
     sb.append("  Received: ");
     sb.append(value);
     sb.append(System.lineSeparator());
+
+    if (expected.isPresent()) {
+      sb.append("  Expected: ");
+      sb.append(expected.get());
+      sb.append(System.lineSeparator());
+    }
+
     sb.append("  Violated conditions: ");
     sb.append(System.lineSeparator());
 
