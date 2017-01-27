@@ -66,7 +66,7 @@ public final class Invariants
     final ContractConditionType<T>... conditions)
     throws InvariantViolationException
   {
-    final Violations violations = checkAll(value, conditions);
+    final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
       throw invariantsFailed(value, violations);
     }
@@ -91,7 +91,7 @@ public final class Invariants
     throws InvariantViolationException
   {
     final Violations violations =
-      checkAllInt(value, conditions);
+      innerCheckAllInt(value, conditions);
     if (violations != null) {
       throw invariantsFailed(
         Integer.valueOf(value),
@@ -118,7 +118,7 @@ public final class Invariants
     throws InvariantViolationException
   {
     final Violations violations =
-      checkAllLong(value, conditions);
+      innerCheckAllLong(value, conditions);
     if (violations != null) {
       throw invariantsFailed(Long.valueOf(value), violations);
     }
@@ -143,7 +143,7 @@ public final class Invariants
     throws InvariantViolationException
   {
     final Violations violations =
-      checkAllDouble(value, conditions);
+      innerCheckAllDouble(value, conditions);
     if (violations != null) {
       throw invariantsFailed(
         Double.valueOf(value),
@@ -172,8 +172,7 @@ public final class Invariants
     final ContractConditionType<T> condition)
     throws InvariantViolationException
   {
-    return checkInvariant(
-      value, condition.predicate(), condition.describer());
+    return checkInvariant(value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -205,7 +204,7 @@ public final class Invariants
         value, Violations.one(failedPredicate(e)));
     }
 
-    return checkInvariant(value, ok, describer);
+    return innerCheckInvariant(value, ok, describer);
   }
 
   /**
@@ -229,11 +228,7 @@ public final class Invariants
     final boolean condition,
     final Function<T, String> describer)
   {
-    if (!condition) {
-      throw invariantsFailed(value, Violations.one(
-        applyDescriberChecked(value, describer)));
-    }
-    return value;
+    return innerCheckInvariant(value, condition, describer);
   }
 
   /**
@@ -327,7 +322,7 @@ public final class Invariants
         Violations.one(failedPredicate(e)));
     }
 
-    return checkInvariantI(value, ok, describer);
+    return innerCheckInvariantI(value, ok, describer);
   }
 
   /**
@@ -348,12 +343,7 @@ public final class Invariants
     final boolean condition,
     final IntFunction<String> describer)
   {
-    if (!condition) {
-      throw invariantsFailed(
-        Integer.valueOf(value),
-        Violations.one(applyDescriberIChecked(value, describer)));
-    }
-    return value;
+    return innerCheckInvariantI(value, condition, describer);
   }
 
   /**
@@ -373,10 +363,7 @@ public final class Invariants
     final ContractLongConditionType condition)
     throws InvariantViolationException
   {
-    return checkInvariantL(
-      value,
-      condition.predicate(),
-      condition.describer());
+    return checkInvariantL(value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -406,7 +393,7 @@ public final class Invariants
         Violations.one(failedPredicate(e)));
     }
 
-    return checkInvariantL(value, ok, describer);
+    return innerCheckInvariantL(value, ok, describer);
   }
 
   /**
@@ -427,12 +414,7 @@ public final class Invariants
     final boolean condition,
     final LongFunction<String> describer)
   {
-    if (!condition) {
-      throw invariantsFailed(
-        Long.valueOf(value),
-        Violations.one(applyDescriberLChecked(value, describer)));
-    }
-    return value;
+    return innerCheckInvariantL(value, condition, describer);
   }
 
   /**
@@ -452,8 +434,7 @@ public final class Invariants
     final ContractDoubleConditionType condition)
     throws InvariantViolationException
   {
-    return checkInvariantD(
-      value, condition.predicate(), condition.describer());
+    return checkInvariantD(value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -483,7 +464,7 @@ public final class Invariants
         Violations.one(failedPredicate(e)));
     }
 
-    return checkInvariantD(value, ok, describer);
+    return innerCheckInvariantD(value, ok, describer);
   }
 
   /**
@@ -504,6 +485,26 @@ public final class Invariants
     final boolean condition,
     final DoubleFunction<String> describer)
   {
+    return innerCheckInvariantD(value, condition, describer);
+  }
+
+  private static <T> T innerCheckInvariant(
+    final T value,
+    final boolean condition,
+    final Function<T, String> describer)
+  {
+    if (!condition) {
+      throw invariantsFailed(value, Violations.one(
+        applyDescriberChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static double innerCheckInvariantD(
+    final double value,
+    final boolean condition,
+    final DoubleFunction<String> describer)
+  {
     if (!condition) {
       throw invariantsFailed(
         Double.valueOf(value),
@@ -512,7 +513,33 @@ public final class Invariants
     return value;
   }
 
-  private static <T> Violations checkAll(
+  private static long innerCheckInvariantL(
+    final long value,
+    final boolean condition,
+    final LongFunction<String> describer)
+  {
+    if (!condition) {
+      throw invariantsFailed(
+        Long.valueOf(value),
+        Violations.one(applyDescriberLChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static int innerCheckInvariantI(
+    final int value,
+    final boolean condition,
+    final IntFunction<String> describer)
+  {
+    if (!condition) {
+      throw invariantsFailed(
+        Integer.valueOf(value),
+        Violations.one(applyDescriberIChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static <T> Violations innerCheckAll(
     final T value,
     final ContractConditionType<T>[] conditions)
   {
@@ -543,7 +570,7 @@ public final class Invariants
     return violations;
   }
 
-  private static Violations checkAllInt(
+  private static Violations innerCheckAllInt(
     final int value,
     final ContractIntConditionType[] conditions)
   {
@@ -574,7 +601,7 @@ public final class Invariants
     return violations;
   }
 
-  private static Violations checkAllLong(
+  private static Violations innerCheckAllLong(
     final long value,
     final ContractLongConditionType[] conditions)
   {
@@ -605,7 +632,7 @@ public final class Invariants
     return violations;
   }
 
-  private static Violations checkAllDouble(
+  private static Violations innerCheckAllDouble(
     final double value,
     final ContractDoubleConditionType[] conditions)
   {

@@ -66,7 +66,7 @@ public final class Postconditions
     final ContractConditionType<T>... conditions)
     throws PostconditionViolationException
   {
-    final Violations violations = checkAll(value, conditions);
+    final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
       throw postconditionsFailed(value, violations);
     }
@@ -90,12 +90,9 @@ public final class Postconditions
     final ContractIntConditionType... conditions)
     throws PostconditionViolationException
   {
-    final Violations violations =
-      checkAllInt(value, conditions);
+    final Violations violations = innerCheckAllInt(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(
-        Integer.valueOf(value),
-        violations);
+      throw postconditionsFailed(Integer.valueOf(value), violations);
     }
     return value;
   }
@@ -117,12 +114,9 @@ public final class Postconditions
     final ContractLongConditionType... conditions)
     throws PostconditionViolationException
   {
-    final Violations violations =
-      checkAllLong(value, conditions);
+    final Violations violations = innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(
-        Long.valueOf(value),
-        violations);
+      throw postconditionsFailed(Long.valueOf(value), violations);
     }
     return value;
   }
@@ -144,11 +138,9 @@ public final class Postconditions
     final ContractDoubleConditionType... conditions)
     throws PostconditionViolationException
   {
-    final Violations violations = checkAllDouble(value, conditions);
+    final Violations violations = innerCheckAllDouble(value, conditions);
     if (violations != null) {
-      throw postconditionsFailed(
-        Double.valueOf(value),
-        violations);
+      throw postconditionsFailed(Double.valueOf(value), violations);
     }
     return value;
   }
@@ -206,7 +198,7 @@ public final class Postconditions
         value, Violations.one(failedPredicate(e)));
     }
 
-    return checkPostcondition(value, ok, describer);
+    return innerCheck(value, ok, describer);
   }
 
   /**
@@ -230,11 +222,7 @@ public final class Postconditions
     final boolean condition,
     final Function<T, String> describer)
   {
-    if (!condition) {
-      throw postconditionsFailed(value, Violations.one(
-        applyDescriberChecked(value, describer)));
-    }
-    return value;
+    return innerCheck(value, condition, describer);
   }
 
   /**
@@ -324,11 +312,10 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        Integer.valueOf(value),
-        Violations.one(failedPredicate(e)));
+        Integer.valueOf(value), Violations.one(failedPredicate(e)));
     }
 
-    return checkPostconditionI(value, ok, describer);
+    return innerCheckI(value, ok, describer);
   }
 
   /**
@@ -349,14 +336,7 @@ public final class Postconditions
     final boolean condition,
     final IntFunction<String> describer)
   {
-    if (!condition) {
-      throw postconditionsFailed(
-        Integer.valueOf(value),
-        Violations.one(applyDescriberIChecked(
-          value,
-          describer)));
-    }
-    return value;
+    return innerCheckI(value, condition, describer);
   }
 
   /**
@@ -377,9 +357,7 @@ public final class Postconditions
     throws PostconditionViolationException
   {
     return checkPostconditionL(
-      value,
-      condition.predicate(),
-      condition.describer());
+      value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -405,11 +383,10 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        Long.valueOf(value),
-        Violations.one(failedPredicate(e)));
+        Long.valueOf(value), Violations.one(failedPredicate(e)));
     }
 
-    return checkPostconditionL(value, ok, describer);
+    return innerCheckL(value, ok, describer);
   }
 
   /**
@@ -430,14 +407,7 @@ public final class Postconditions
     final boolean condition,
     final LongFunction<String> describer)
   {
-    if (!condition) {
-      throw postconditionsFailed(
-        Long.valueOf(value),
-        Violations.one(applyDescriberLChecked(
-          value,
-          describer)));
-    }
-    return value;
+    return innerCheckL(value, condition, describer);
   }
 
   /**
@@ -484,11 +454,10 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw postconditionsFailed(
-        Double.valueOf(value),
-        Violations.one(failedPredicate(e)));
+        Double.valueOf(value), Violations.one(failedPredicate(e)));
     }
 
-    return checkPostconditionD(value, ok, describer);
+    return innerCheckD(value, ok, describer);
   }
 
   /**
@@ -509,17 +478,65 @@ public final class Postconditions
     final boolean condition,
     final DoubleFunction<String> describer)
   {
+    return innerCheckD(value, condition, describer);
+  }
+
+  private static double innerCheckD(
+    final double value,
+    final boolean condition,
+    final DoubleFunction<String> describer)
+  {
     if (!condition) {
       throw postconditionsFailed(
         Double.valueOf(value),
-        Violations.one(applyDescriberDChecked(
+        Violations.one(applyDescriberDChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static long innerCheckL(
+    final long value,
+    final boolean condition,
+    final LongFunction<String> describer)
+  {
+    if (!condition) {
+      throw postconditionsFailed(
+        Long.valueOf(value),
+        Violations.one(applyDescriberLChecked(
           value,
           describer)));
     }
     return value;
   }
 
-  private static <T> Violations checkAll(
+  private static int innerCheckI(
+    final int value,
+    final boolean condition,
+    final IntFunction<String> describer)
+  {
+    if (!condition) {
+      throw postconditionsFailed(
+        Integer.valueOf(value),
+        Violations.one(applyDescriberIChecked(
+          value,
+          describer)));
+    }
+    return value;
+  }
+
+  private static <T> T innerCheck(
+    final T value,
+    final boolean condition,
+    final Function<T, String> describer)
+  {
+    if (!condition) {
+      throw postconditionsFailed(value, Violations.one(
+        applyDescriberChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static <T> Violations innerCheckAll(
     final T value,
     final ContractConditionType<T>[] conditions)
   {
@@ -550,7 +567,7 @@ public final class Postconditions
     return violations;
   }
 
-  private static Violations checkAllInt(
+  private static Violations innerCheckAllInt(
     final int value,
     final ContractIntConditionType[] conditions)
   {
@@ -581,7 +598,7 @@ public final class Postconditions
     return violations;
   }
 
-  private static Violations checkAllLong(
+  private static Violations innerCheckAllLong(
     final long value,
     final ContractLongConditionType[] conditions)
   {
@@ -612,7 +629,7 @@ public final class Postconditions
     return violations;
   }
 
-  private static Violations checkAllDouble(
+  private static Violations innerCheckAllDouble(
     final double value,
     final ContractDoubleConditionType[] conditions)
   {

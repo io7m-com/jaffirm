@@ -903,6 +903,14 @@ public final class PostconditionsTest
   }
 
   @Test
+  public void testPostconditionIntOther()
+  {
+    final int r = Postconditions.checkPostconditionI(
+      22, true, x -> "OK");
+    Assert.assertEquals(22L, (long) r);
+  }
+
+  @Test
   public void testPostconditionLongViolation()
   {
     this.expected.expect(PostconditionViolationException.class);
@@ -986,6 +994,14 @@ public final class PostconditionsTest
   }
 
   @Test
+  public void testPostconditionLongOther()
+  {
+    final long r = Postconditions.checkPostconditionL(
+      22L, true, x -> "OK");
+    Assert.assertEquals(22L, r);
+  }
+
+  @Test
   public void testPostconditionDoubleViolation()
   {
     this.expected.expect(PostconditionViolationException.class);
@@ -1065,6 +1081,14 @@ public final class PostconditionsTest
         x -> x < 23.0,
         x -> format("Value %f must be < 23", Double.valueOf(x))));
 
+    Assert.assertEquals(22.0, r, 0.0);
+  }
+
+  @Test
+  public void testPostconditionDoubleOther()
+  {
+    final double r = Postconditions.checkPostconditionD(
+      22.0, true, x -> "OK");
     Assert.assertEquals(22.0, r, 0.0);
   }
 

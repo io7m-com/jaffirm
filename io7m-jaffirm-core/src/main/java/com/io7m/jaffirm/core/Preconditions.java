@@ -66,7 +66,7 @@ public final class Preconditions
     final ContractConditionType<T>... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations = checkAll(value, conditions);
+    final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
       throw preconditionsFailed(value, violations);
     }
@@ -90,7 +90,7 @@ public final class Preconditions
     final ContractIntConditionType... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations = checkAllInt(value, conditions);
+    final Violations violations = innerCheckAllInt(value, conditions);
     if (violations != null) {
       throw preconditionsFailed(Integer.valueOf(value), violations);
     }
@@ -114,7 +114,7 @@ public final class Preconditions
     final ContractLongConditionType... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations = checkAllLong(value, conditions);
+    final Violations violations = innerCheckAllLong(value, conditions);
     if (violations != null) {
       throw preconditionsFailed(Long.valueOf(value), violations);
     }
@@ -138,7 +138,7 @@ public final class Preconditions
     final ContractDoubleConditionType... conditions)
     throws PreconditionViolationException
   {
-    final Violations violations = checkAllDouble(value, conditions);
+    final Violations violations = innerCheckAllDouble(value, conditions);
     if (violations != null) {
       throw preconditionsFailed(Double.valueOf(value), violations);
     }
@@ -197,7 +197,7 @@ public final class Preconditions
       throw preconditionsFailed(value, Violations.one(failedPredicate(e)));
     }
 
-    return checkPrecondition(value, ok, describer);
+    return innerCheck(value, ok, describer);
   }
 
   /**
@@ -221,11 +221,7 @@ public final class Preconditions
     final boolean condition,
     final Function<T, String> describer)
   {
-    if (!condition) {
-      throw preconditionsFailed(value, Violations.one(
-        applyDescriberChecked(value, describer)));
-    }
-    return value;
+    return innerCheck(value, condition, describer);
   }
 
   /**
@@ -318,7 +314,7 @@ public final class Preconditions
         Integer.valueOf(value), Violations.one(failedPredicate(e)));
     }
 
-    return checkPreconditionI(value, ok, describer);
+    return innerCheckI(value, ok, describer);
   }
 
   /**
@@ -339,12 +335,7 @@ public final class Preconditions
     final boolean condition,
     final IntFunction<String> describer)
   {
-    if (!condition) {
-      throw preconditionsFailed(
-        Integer.valueOf(value),
-        Violations.one(applyDescriberIChecked(value, describer)));
-    }
-    return value;
+    return innerCheckI(value, condition, describer);
   }
 
   /**
@@ -365,9 +356,7 @@ public final class Preconditions
     throws PreconditionViolationException
   {
     return checkPreconditionL(
-      value,
-      condition.predicate(),
-      condition.describer());
+      value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -397,7 +386,7 @@ public final class Preconditions
         Violations.one(failedPredicate(e)));
     }
 
-    return checkPreconditionL(value, ok, describer);
+    return innerCheckL(value, ok, describer);
   }
 
   /**
@@ -418,12 +407,7 @@ public final class Preconditions
     final boolean condition,
     final LongFunction<String> describer)
   {
-    if (!condition) {
-      throw preconditionsFailed(
-        Long.valueOf(value),
-        Violations.one(applyDescriberLChecked(value, describer)));
-    }
-    return value;
+    return innerCheckL(value, condition, describer);
   }
 
   /**
@@ -474,7 +458,7 @@ public final class Preconditions
         Violations.one(failedPredicate(e)));
     }
 
-    return checkPreconditionD(value, ok, describer);
+    return innerCheckD(value, ok, describer);
   }
 
   /**
@@ -495,6 +479,52 @@ public final class Preconditions
     final boolean condition,
     final DoubleFunction<String> describer)
   {
+    return innerCheckD(value, condition, describer);
+  }
+
+  private static <T> T innerCheck(
+    final T value,
+    final boolean condition,
+    final Function<T, String> describer)
+  {
+    if (!condition) {
+      throw preconditionsFailed(value, Violations.one(
+        applyDescriberChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static int innerCheckI(
+    final int value,
+    final boolean condition,
+    final IntFunction<String> describer)
+  {
+    if (!condition) {
+      throw preconditionsFailed(
+        Integer.valueOf(value),
+        Violations.one(applyDescriberIChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static long innerCheckL(
+    final long value,
+    final boolean condition,
+    final LongFunction<String> describer)
+  {
+    if (!condition) {
+      throw preconditionsFailed(
+        Long.valueOf(value),
+        Violations.one(applyDescriberLChecked(value, describer)));
+    }
+    return value;
+  }
+
+  private static double innerCheckD(
+    final double value,
+    final boolean condition,
+    final DoubleFunction<String> describer)
+  {
     if (!condition) {
       throw preconditionsFailed(
         Double.valueOf(value),
@@ -503,7 +533,7 @@ public final class Preconditions
     return value;
   }
 
-  private static <T> Violations checkAll(
+  private static <T> Violations innerCheckAll(
     final T value,
     final ContractConditionType<T>[] conditions)
   {
@@ -534,7 +564,7 @@ public final class Preconditions
     return violations;
   }
 
-  private static Violations checkAllInt(
+  private static Violations innerCheckAllInt(
     final int value,
     final ContractIntConditionType[] conditions)
   {
@@ -565,7 +595,7 @@ public final class Preconditions
     return violations;
   }
 
-  private static Violations checkAllLong(
+  private static Violations innerCheckAllLong(
     final long value,
     final ContractLongConditionType[] conditions)
   {
@@ -596,7 +626,7 @@ public final class Preconditions
     return violations;
   }
 
-  private static Violations checkAllDouble(
+  private static Violations innerCheckAllDouble(
     final double value,
     final ContractDoubleConditionType[] conditions)
   {
