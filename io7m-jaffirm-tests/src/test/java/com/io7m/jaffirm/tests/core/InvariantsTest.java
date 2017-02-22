@@ -903,6 +903,14 @@ public final class InvariantsTest
   }
 
   @Test
+  public void testInvariantIntOther()
+  {
+    final int r =
+      Invariants.checkInvariantI(22, true, x -> "OK");
+    Assert.assertEquals(22L, (long) r);
+  }
+
+  @Test
   public void testInvariantLongViolation()
   {
     this.expected.expect(InvariantViolationException.class);
@@ -982,6 +990,14 @@ public final class InvariantsTest
         x -> x < 23L,
         x -> format("Value %d must be < 23", Long.valueOf(x))));
 
+    Assert.assertEquals(22L, r);
+  }
+
+  @Test
+  public void testInvariantLongOther()
+  {
+    final long r =
+      Invariants.checkInvariantL(22L, true, x -> "OK");
     Assert.assertEquals(22L, r);
   }
 
@@ -1069,6 +1085,14 @@ public final class InvariantsTest
   }
 
   @Test
+  public void testInvariantDoubleOther()
+  {
+    final double r = Invariants.checkInvariantD(
+      22.0, true, x -> "OK");
+    Assert.assertEquals(22.0, r, 0.0);
+  }
+
+  @Test
   public void testInvariantSimpleViolation0()
   {
     this.expected.expect(InvariantViolationException.class);
@@ -1093,7 +1117,9 @@ public final class InvariantsTest
     this.expected.expect(new ViolationMatcher(1));
 
     Invariants.checkInvariant(
-      Integer.valueOf(23), 23 < 23, x -> String.format("Value %d must < 23", x));
+      Integer.valueOf(23),
+      23 < 23,
+      x -> String.format("Value %d must < 23", x));
   }
 
   @Test

@@ -18,8 +18,6 @@ package com.io7m.jaffirm.core;
 
 import com.io7m.junreachable.UnreachableCodeException;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
@@ -29,6 +27,18 @@ import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static com.io7m.jaffirm.core.SafeApplication.applyDescriberChecked;
+import static com.io7m.jaffirm.core.SafeApplication.applyDescriberDChecked;
+import static com.io7m.jaffirm.core.SafeApplication.applyDescriberIChecked;
+import static com.io7m.jaffirm.core.SafeApplication.applyDescriberLChecked;
+import static com.io7m.jaffirm.core.SafeApplication.applySupplierChecked;
+import static com.io7m.jaffirm.core.SafeApplication.failedPredicate;
+import static com.io7m.jaffirm.core.Violations.innerCheckAll;
+import static com.io7m.jaffirm.core.Violations.innerCheckAllDouble;
+import static com.io7m.jaffirm.core.Violations.innerCheckAllInt;
+import static com.io7m.jaffirm.core.Violations.innerCheckAllLong;
+import static com.io7m.jaffirm.core.Violations.singleViolation;
 
 /**
  * Functions to check invariants.
@@ -66,9 +76,9 @@ public final class Invariants
     final ContractConditionType<T>... conditions)
     throws InvariantViolationException
   {
-    final Violations violations = Invariants.checkAll(value, conditions);
+    final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
-      throw Invariants.invariantsFailed(value, violations);
+      throw failed(value, violations);
     }
     return value;
   }
@@ -91,11 +101,9 @@ public final class Invariants
     throws InvariantViolationException
   {
     final Violations violations =
-      Invariants.checkAllInt(value, conditions);
+      innerCheckAllInt(value, conditions);
     if (violations != null) {
-      throw Invariants.invariantsFailed(
-        Integer.valueOf(value),
-        violations);
+      throw failed(Integer.valueOf(value), violations);
     }
     return value;
   }
@@ -118,9 +126,9 @@ public final class Invariants
     throws InvariantViolationException
   {
     final Violations violations =
-      Invariants.checkAllLong(value, conditions);
+      innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw Invariants.invariantsFailed(Long.valueOf(value), violations);
+      throw failed(Long.valueOf(value), violations);
     }
     return value;
   }
@@ -143,11 +151,9 @@ public final class Invariants
     throws InvariantViolationException
   {
     final Violations violations =
-      Invariants.checkAllDouble(value, conditions);
+      innerCheckAllDouble(value, conditions);
     if (violations != null) {
-      throw Invariants.invariantsFailed(
-        Double.valueOf(value),
-        violations);
+      throw failed(Double.valueOf(value), violations);
     }
     return value;
   }
@@ -172,8 +178,7 @@ public final class Invariants
     final ContractConditionType<T> condition)
     throws InvariantViolationException
   {
-    return Invariants.checkInvariant(
-      value, condition.predicate(), condition.describer());
+    return checkInvariant(value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -201,11 +206,10 @@ public final class Invariants
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Invariants.invariantsFailed(
-        value, Violations.one(Invariants.failedPredicate(e)));
+      throw failed(value, singleViolation(failedPredicate(e)));
     }
 
-    return Invariants.checkInvariant(value, ok, describer);
+    return innerCheckInvariant(value, ok, describer);
   }
 
   /**
@@ -229,11 +233,7 @@ public final class Invariants
     final boolean condition,
     final Function<T, String> describer)
   {
-    if (!condition) {
-      throw Invariants.invariantsFailed(value, Violations.one(
-        Invariants.applyDescriberChecked(value, describer)));
-    }
-    return value;
+    return innerCheckInvariant(value, condition, describer);
   }
 
   /**
@@ -252,8 +252,7 @@ public final class Invariants
     throws InvariantViolationException
   {
     if (!condition) {
-      throw Invariants.invariantsFailed(
-        "<unspecified>", Violations.one(message));
+      throw failed("<unspecified>", singleViolation(message));
     }
   }
 
@@ -273,9 +272,8 @@ public final class Invariants
     throws InvariantViolationException
   {
     if (!condition) {
-      throw Invariants.invariantsFailed(
-        "<unspecified>",
-        Violations.one(Invariants.applySupplierChecked(message)));
+      throw failed(
+        "<unspecified>", singleViolation(applySupplierChecked(message)));
     }
   }
 
@@ -296,7 +294,7 @@ public final class Invariants
     final ContractIntConditionType condition)
     throws InvariantViolationException
   {
-    return Invariants.checkInvariantI(
+    return checkInvariantI(
       value, condition.predicate(), condition.describer());
   }
 
@@ -322,12 +320,11 @@ public final class Invariants
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Invariants.invariantsFailed(
-        Integer.valueOf(value),
-        Violations.one(Invariants.failedPredicate(e)));
+      throw failed(
+        Integer.valueOf(value), singleViolation(failedPredicate(e)));
     }
 
-    return Invariants.checkInvariantI(value, ok, describer);
+    return innerCheckInvariantI(value, ok, describer);
   }
 
   /**
@@ -348,12 +345,7 @@ public final class Invariants
     final boolean condition,
     final IntFunction<String> describer)
   {
-    if (!condition) {
-      throw Invariants.invariantsFailed(
-        Integer.valueOf(value),
-        Violations.one(Invariants.applyDescriberIChecked(value, describer)));
-    }
-    return value;
+    return innerCheckInvariantI(value, condition, describer);
   }
 
   /**
@@ -373,10 +365,7 @@ public final class Invariants
     final ContractLongConditionType condition)
     throws InvariantViolationException
   {
-    return Invariants.checkInvariantL(
-      value,
-      condition.predicate(),
-      condition.describer());
+    return checkInvariantL(value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -401,12 +390,11 @@ public final class Invariants
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Invariants.invariantsFailed(
-        Long.valueOf(value),
-        Violations.one(Invariants.failedPredicate(e)));
+      throw failed(
+        Long.valueOf(value), singleViolation(failedPredicate(e)));
     }
 
-    return Invariants.checkInvariantL(value, ok, describer);
+    return innerCheckInvariantL(value, ok, describer);
   }
 
   /**
@@ -427,12 +415,7 @@ public final class Invariants
     final boolean condition,
     final LongFunction<String> describer)
   {
-    if (!condition) {
-      throw Invariants.invariantsFailed(
-        Long.valueOf(value),
-        Violations.one(Invariants.applyDescriberLChecked(value, describer)));
-    }
-    return value;
+    return innerCheckInvariantL(value, condition, describer);
   }
 
   /**
@@ -452,8 +435,7 @@ public final class Invariants
     final ContractDoubleConditionType condition)
     throws InvariantViolationException
   {
-    return Invariants.checkInvariantD(
-      value, condition.predicate(), condition.describer());
+    return checkInvariantD(value, condition.predicate(), condition.describer());
   }
 
   /**
@@ -478,12 +460,11 @@ public final class Invariants
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw Invariants.invariantsFailed(
-        Double.valueOf(value),
-        Violations.one(Invariants.failedPredicate(e)));
+      throw failed(
+        Double.valueOf(value), singleViolation(failedPredicate(e)));
     }
 
-    return Invariants.checkInvariantD(value, ok, describer);
+    return innerCheckInvariantD(value, ok, describer);
   }
 
   /**
@@ -504,256 +485,77 @@ public final class Invariants
     final boolean condition,
     final DoubleFunction<String> describer)
   {
+    return innerCheckInvariantD(value, condition, describer);
+  }
+
+  private static <T> T innerCheckInvariant(
+    final T value,
+    final boolean condition,
+    final Function<T, String> describer)
+  {
     if (!condition) {
-      throw Invariants.invariantsFailed(
-        Double.valueOf(value),
-        Violations.one(Invariants.applyDescriberDChecked(value, describer)));
+      throw failed(
+        value,
+        singleViolation(applyDescriberChecked(value, describer)));
     }
     return value;
   }
 
-  private static <T> Violations checkAll(
-    final T value,
-    final ContractConditionType<T>[] conditions)
-  {
-    Violations violations = null;
-
-    for (int index = 0; index < conditions.length; ++index) {
-      final ContractConditionType<T> condition = conditions[index];
-      final Predicate<T> predicate = condition.predicate();
-
-      final boolean ok;
-      final int count = conditions.length;
-      try {
-        ok = predicate.test(value);
-      } catch (final Throwable e) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] = Invariants.failedPredicate(e);
-        ++violations.count;
-        continue;
-      }
-
-      if (!ok) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] =
-          Invariants.applyDescriberChecked(value, condition.describer());
-        ++violations.count;
-      }
-    }
-    return violations;
-  }
-
-  private static Violations checkAllInt(
-    final int value,
-    final ContractIntConditionType[] conditions)
-  {
-    Violations violations = null;
-
-    for (int index = 0; index < conditions.length; ++index) {
-      final ContractIntConditionType condition = conditions[index];
-      final IntPredicate predicate = condition.predicate();
-
-      final boolean ok;
-      final int count = conditions.length;
-      try {
-        ok = predicate.test(value);
-      } catch (final Throwable e) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] = Invariants.failedPredicate(e);
-        ++violations.count;
-        continue;
-      }
-
-      if (!ok) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] =
-          Invariants.applyDescriberIChecked(value, condition.describer());
-        ++violations.count;
-      }
-    }
-    return violations;
-  }
-
-  private static Violations checkAllLong(
-    final long value,
-    final ContractLongConditionType[] conditions)
-  {
-    Violations violations = null;
-
-    for (int index = 0; index < conditions.length; ++index) {
-      final ContractLongConditionType condition = conditions[index];
-      final LongPredicate predicate = condition.predicate();
-
-      final boolean ok;
-      final int count = conditions.length;
-      try {
-        ok = predicate.test(value);
-      } catch (final Throwable e) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] = Invariants.failedPredicate(e);
-        ++violations.count;
-        continue;
-      }
-
-      if (!ok) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] =
-          Invariants.applyDescriberLChecked(value, condition.describer());
-        ++violations.count;
-      }
-    }
-    return violations;
-  }
-
-  private static Violations checkAllDouble(
+  private static double innerCheckInvariantD(
     final double value,
-    final ContractDoubleConditionType[] conditions)
-  {
-    Violations violations = null;
-
-    for (int index = 0; index < conditions.length; ++index) {
-      final ContractDoubleConditionType condition = conditions[index];
-      final DoublePredicate predicate = condition.predicate();
-
-      final boolean ok;
-      final int count = conditions.length;
-      try {
-        ok = predicate.test(value);
-      } catch (final Throwable e) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] = Invariants.failedPredicate(e);
-        ++violations.count;
-        continue;
-      }
-
-      if (!ok) {
-        violations = Invariants.maybeAllocate(violations, count);
-        violations.messages[index] =
-          Invariants.applyDescriberDChecked(value, condition.describer());
-        ++violations.count;
-      }
-    }
-    return violations;
-  }
-
-  private static Violations maybeAllocate(
-    final Violations violations,
-    final int count)
-  {
-    return violations == null ? new Violations(count) : violations;
-  }
-
-  private static String applySupplierChecked(
-    final Supplier<String> message)
-  {
-    try {
-      return message.get();
-    } catch (final Throwable e) {
-      return Invariants.failedDescriber(e);
-    }
-  }
-
-  private static <T> String applyDescriberChecked(
-    final T value,
-    final Function<T, String> describer)
-  {
-    try {
-      return describer.apply(value);
-    } catch (final Throwable e) {
-      return Invariants.failedDescriber(e);
-    }
-  }
-
-  private static String applyDescriberIChecked(
-    final int value,
-    final IntFunction<String> describer)
-  {
-    try {
-      return describer.apply(value);
-    } catch (final Throwable e) {
-      return Invariants.failedDescriber(e);
-    }
-  }
-
-  private static String applyDescriberLChecked(
-    final long value,
-    final LongFunction<String> describer)
-  {
-    try {
-      return describer.apply(value);
-    } catch (final Throwable e) {
-      return Invariants.failedDescriber(e);
-    }
-  }
-
-  private static String applyDescriberDChecked(
-    final double value,
+    final boolean condition,
     final DoubleFunction<String> describer)
   {
-    try {
-      return describer.apply(value);
-    } catch (final Throwable e) {
-      return Invariants.failedDescriber(e);
+    if (!condition) {
+      throw failed(
+        Double.valueOf(value),
+        singleViolation(applyDescriberDChecked(value, describer)));
     }
+    return value;
   }
 
-  private static <T> String failedPredicate(
-    final Throwable exception)
+  private static long innerCheckInvariantL(
+    final long value,
+    final boolean condition,
+    final LongFunction<String> describer)
   {
-    return Invariants.failedApply(
-      exception, "Exception raised whilst evaluating predicate: ");
-  }
-
-  private static String failedDescriber(
-    final Throwable exception)
-  {
-    return Invariants.failedApply(
-      exception, "Exception raised whilst evaluating describer: ");
-  }
-
-  private static String failedApply(
-    final Throwable exception,
-    final String prefix)
-  {
-    if (exception instanceof Error) {
-      throw (Error) exception;
+    if (!condition) {
+      throw failed(
+        Long.valueOf(value),
+        singleViolation(applyDescriberLChecked(value, describer)));
     }
-
-    final StringBuilder sb = new StringBuilder(128);
-    sb.append(prefix);
-    sb.append(exception.getClass());
-    sb.append(": ");
-    sb.append(exception.getMessage());
-    sb.append(System.lineSeparator());
-    sb.append(System.lineSeparator());
-    Invariants.stackTraceToStringBuilder(exception, sb);
-    return sb.toString();
+    return value;
   }
 
-  private static void stackTraceToStringBuilder(
-    final Throwable exception,
-    final StringBuilder sb)
+  private static int innerCheckInvariantI(
+    final int value,
+    final boolean condition,
+    final IntFunction<String> describer)
   {
-    final StringWriter sw = new StringWriter();
-    final PrintWriter pw = new PrintWriter(sw, true);
-    exception.printStackTrace(pw);
-    sb.append(sw.toString());
+    if (!condition) {
+      throw failed(
+        Integer.valueOf(value),
+        singleViolation(applyDescriberIChecked(value, describer)));
+    }
+    return value;
   }
 
-  private static <T> InvariantViolationException invariantsFailed(
+  private static <T> InvariantViolationException failed(
     final T value,
     final Violations violations)
   {
     final StringBuilder sb = new StringBuilder(128);
     sb.append("Invariant violation.");
     sb.append(System.lineSeparator());
+
     sb.append("  Received: ");
     sb.append(value);
     sb.append(System.lineSeparator());
+
     sb.append("  Violated conditions: ");
     sb.append(System.lineSeparator());
 
-    final String[] messages = violations.messages;
+    final String[] messages = violations.messages();
     for (int index = 0; index < messages.length; ++index) {
       if (messages[index] != null) {
         sb.append("    [");
@@ -764,27 +566,6 @@ public final class Invariants
       }
     }
 
-    throw new InvariantViolationException(sb.toString(), violations.count);
-  }
-
-  private static final class Violations
-  {
-    private final String[] messages;
-    private int count;
-
-    private Violations(final int expected)
-    {
-      this.messages = new String[expected];
-      this.count = 0;
-    }
-
-    private static Violations one(
-      final String message)
-    {
-      final Violations violations = new Violations(1);
-      violations.messages[0] = message;
-      violations.count = 1;
-      return violations;
-    }
+    throw new InvariantViolationException(sb.toString(), violations.count());
   }
 }

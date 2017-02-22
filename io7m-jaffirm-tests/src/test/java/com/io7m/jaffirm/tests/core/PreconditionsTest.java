@@ -903,6 +903,14 @@ public final class PreconditionsTest
   }
 
   @Test
+  public void testPreconditionIntOther()
+  {
+    final int r = Preconditions.checkPreconditionI(
+      22, true, x -> "OK");
+    Assert.assertEquals(22L, (long) r);
+  }
+
+  @Test
   public void testPreconditionLongViolation()
   {
     this.expected.expect(PreconditionViolationException.class);
@@ -986,6 +994,14 @@ public final class PreconditionsTest
   }
 
   @Test
+  public void testPreconditionLongOther()
+  {
+    final long r = Preconditions.checkPreconditionL(
+      22L, true, x -> "OK");
+    Assert.assertEquals(22L, r);
+  }
+
+  @Test
   public void testPreconditionDoubleViolation()
   {
     this.expected.expect(PreconditionViolationException.class);
@@ -1065,6 +1081,14 @@ public final class PreconditionsTest
         x -> x < 23.0,
         x -> format("Value %f must be < 23", Double.valueOf(x))));
 
+    Assert.assertEquals(22.0, r, 0.0);
+  }
+
+  @Test
+  public void testPreconditionDoubleOther()
+  {
+    final double r = Preconditions.checkPreconditionD(
+      22.0, true, x -> "OK");
     Assert.assertEquals(22.0, r, 0.0);
   }
 
