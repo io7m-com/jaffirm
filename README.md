@@ -6,3 +6,6 @@ jaffirm
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8e7105dcfbf2437aa3402fbdb0269f89)](https://www.codacy.com/app/github_79/jaffirm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=io7m/jaffirm&amp;utm_campaign=Badge_Grade)
 
 See https://io7m.github.io/jaffirm/ for more information.
+
+![jaffirm](./src/site/resources/jaffirm.jpg?raw=true)
+
