@@ -3,6 +3,16 @@
   <c:project>jaffirm</c:project>
 
   <c:release c:ticket-system="com.github.io7m.jaffirm">
+    <c:date>2017-02-22</c:date>
+    <c:version>1.0.0</c:version>
+    <c:item>
+      <c:date>2017-02-22</c:date>
+      <c:type-code-new/>
+      <c:summary>Initial API-stable release.</c:summary>
+    </c:item>
+  </c:release>
+
+  <c:release c:ticket-system="com.github.io7m.jaffirm">
     <c:date>2016-08-26</c:date>
     <c:version>0.1.0</c:version>
     <c:item>
