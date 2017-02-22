@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.io7m.jaffirm</groupId>
   <artifactId>io7m-jaffirm</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
 
   <packaging>pom</packaging>
   <name>io7m-jaffirm</name>

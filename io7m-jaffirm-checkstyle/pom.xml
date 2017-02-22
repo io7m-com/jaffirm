@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>io7m-jaffirm</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
   </parent>
   <artifactId>io7m-jaffirm-checkstyle</artifactId>
 
