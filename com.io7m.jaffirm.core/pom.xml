@@ -7,15 +7,19 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
-    <artifactId>io7m-jaffirm</artifactId>
+    <artifactId>com.io7m.jaffirm</artifactId>
     <version>1.0.0</version>
   </parent>
-  <artifactId>io7m-jaffirm-core</artifactId>
+  <artifactId>com.io7m.jaffirm.core</artifactId>
 
   <packaging>bundle</packaging>
-  <name>io7m-jaffirm-core</name>
+  <name>com.io7m.jaffirm.core</name>
   <description>Contract checking (Core)</description>
   <url>http://io7m.github.io/jaffirm/</url>
+
+  <properties>
+    <io7m.api.previousArtifactId>io7m-jaffirm-core</io7m.api.previousArtifactId>
+  </properties>
 
   <scm>
     <url>${project.parent.scm.url}</url>
@@ -31,10 +35,6 @@
     <dependency>
       <groupId>com.io7m.junreachable</groupId>
       <artifactId>io7m-junreachable-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.jcip</groupId>
-      <artifactId>jcip-annotations</artifactId>
     </dependency>
 
     <dependency>

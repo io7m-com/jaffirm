@@ -5,17 +5,24 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
-    <artifactId>io7m-jaffirm</artifactId>
+    <artifactId>com.io7m.jaffirm</artifactId>
     <version>1.0.0</version>
   </parent>
-  <artifactId>io7m-jaffirm-documentation</artifactId>
 
+  <artifactId>com.io7m.jaffirm.documentation</artifactId>
   <packaging>jar</packaging>
-  <name>io7m-jaffirm-documentation</name>
+
+  <name>com.io7m.jaffirm.documentation</name>
   <description>Contract checking (Documentation)</description>
   <url>http://io7m.github.io/jaffirm/</url>
+
+  <properties>
+    <io7m.api.previousArtifactId>io7m-jaffirm-documentation</io7m.api.previousArtifactId>
+    <mdep.analyze.skip>true</mdep.analyze.skip>
+  </properties>
 
   <scm>
     <url>${project.parent.scm.url}</url>
@@ -26,7 +33,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>io7m-jaffirm-core</artifactId>
+      <artifactId>com.io7m.jaffirm.core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -64,33 +71,48 @@
 
       <!-- Produce documentation -->
       <plugin>
-        <groupId>com.io7m.jstructural</groupId>
-        <artifactId>io7m-jstructural-maven-plugin</artifactId>
+        <groupId>com.io7m.kstructural</groupId>
+        <artifactId>io7m-kstructural-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>make-documentation-single</id>
-            <phase>prepare-package</phase>
+            <id>exec-multi</id>
             <goals>
-              <goal>transform</goal>
+              <goal>compileXHTML</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
-              <documentFile>${project.build.directory}/documentation/documentation.xml</documentFile>
+              <documentFile>${project.build.directory}/documentation/documentation.sd</documentFile>
               <outputDirectory>${project.build.directory}/documentation/</outputDirectory>
-              <brandFile>${project.build.directory}/documentation/brand.xml</brandFile>
-              <pagination>XHTML_SINGLE</pagination>
+              <pagination>XHTML_MULTI_PAGE</pagination>
+              <cssExtraStyles>
+                <param>documentation.css</param>
+              </cssExtraStyles>
             </configuration>
           </execution>
           <execution>
-            <id>make-documentation-multi</id>
-            <phase>prepare-package</phase>
+            <id>exec-single</id>
             <goals>
-              <goal>transform</goal>
+              <goal>compileXHTML</goal>
             </goals>
+            <phase>process-resources</phase>
             <configuration>
-              <documentFile>${project.build.directory}/documentation/documentation.xml</documentFile>
+              <documentFile>${project.build.directory}/documentation/documentation.sd</documentFile>
               <outputDirectory>${project.build.directory}/documentation/</outputDirectory>
-              <brandFile>${project.build.directory}/documentation/brand.xml</brandFile>
-              <pagination>XHTML_MULTI</pagination>
+              <pagination>XHTML_SINGLE_PAGE</pagination>
+              <cssExtraStyles>
+                <param>documentation.css</param>
+              </cssExtraStyles>
+            </configuration>
+          </execution>
+          <execution>
+            <id>exec-plain</id>
+            <goals>
+              <goal>compilePlain</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <documentFile>${project.build.directory}/documentation/documentation.sd</documentFile>
+              <outputDirectory>${project.build.directory}/documentation/</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -112,10 +134,10 @@
               <bottom><![CDATA[Copyright &#169; {currentYear} &lt;code@io7m.com&gt; http://io7m.com]]></bottom>
               <archive>
                 <manifestEntries>
-                  <Specification-Title>${project.name}</Specification-Title>
+                  <Specification-Title>${project.artifactId}</Specification-Title>
                   <Specification-Version>${project.version}</Specification-Version>
                   <Specification-Vendor>io7m.com</Specification-Vendor>
-                  <Implementation-Title>${project.name}</Implementation-Title>
+                  <Implementation-Title>${project.artifactId}</Implementation-Title>
                   <Implementation-Version>${project.version}</Implementation-Version>
                   <Implementation-Vendor>io7m.com</Implementation-Vendor>
                   <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
@@ -183,7 +205,7 @@
             <configuration>
               <verbose>true</verbose>
               <fileset>
-                <directory>${project.build.directory}/${project.name}-${project.version}.zip/${project.name}-${project.version}/</directory>
+                <directory>${project.build.directory}/${project.artifactId}-${project.version}.zip/${project.artifactId}-${project.version}/</directory>
                 <outputDirectory>${project.parent.build.directory}/staging/documentation/</outputDirectory>
               </fileset>
             </configuration>
