@@ -14,7 +14,7 @@ addons:
 install: true
 
 script:
-  - mvn clean package
+  - mvn clean verify
 
 notifications:
   irc: "chat.freenode.net#io7m"
