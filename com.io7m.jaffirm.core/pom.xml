@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>com.io7m.jaffirm</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
   </parent>
   <artifactId>com.io7m.jaffirm.core</artifactId>
 
@@ -16,10 +16,6 @@
   <name>com.io7m.jaffirm.core</name>
   <description>Contract checking (Core)</description>
   <url>http://io7m.github.io/jaffirm/</url>
-
-  <properties>
-    <io7m.api.previousArtifactId>io7m-jaffirm-core</io7m.api.previousArtifactId>
-  </properties>
 
   <scm>
     <url>${project.parent.scm.url}</url>

@@ -1143,6 +1143,51 @@ public final class InvariantsTest
     Assert.assertEquals(Integer.valueOf(22), r);
   }
 
+  @Test
+  public void testInvariantV()
+  {
+    final Integer r = Invariants.checkInvariantV(
+      Integer.valueOf(22),
+      true,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+
+    Assert.assertEquals(Integer.valueOf(22), r);
+  }
+
+  @Test
+  public void testInvariantVFailed()
+  {
+    this.expected.expect(InvariantViolationException.class);
+    this.expected.expect(new ViolationMatcher(1));
+
+    Invariants.checkInvariantV(
+      Integer.valueOf(22),
+      false,
+      "Failed");
+  }
+
+  @Test
+  public void testInvariantVNoValue()
+  {
+    Invariants.checkInvariantV(
+      true,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+  }
+
+  @Test
+  public void testInvariantVNoValueFailed()
+  {
+    this.expected.expect(InvariantViolationException.class);
+    this.expected.expect(new ViolationMatcher(1));
+
+    Invariants.checkInvariantV(
+      false,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+  }
+
   private class ViolationMatcher extends TypeSafeMatcher<ContractException>
   {
     private final int expected;

@@ -1141,6 +1141,51 @@ public final class PostconditionsTest
     Assert.assertEquals(Integer.valueOf(22), r);
   }
 
+  @Test
+  public void testPostconditionV()
+  {
+    final Integer r = Postconditions.checkPostconditionV(
+      Integer.valueOf(22),
+      true,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+
+    Assert.assertEquals(Integer.valueOf(22), r);
+  }
+
+  @Test
+  public void testPostconditionVFailed()
+  {
+    this.expected.expect(PostconditionViolationException.class);
+    this.expected.expect(new ViolationMatcher(1));
+
+    Postconditions.checkPostconditionV(
+      Integer.valueOf(22),
+      false,
+      "Failed");
+  }
+
+  @Test
+  public void testPostconditionVNoValue()
+  {
+    Postconditions.checkPostconditionV(
+      true,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+  }
+
+  @Test
+  public void testPostconditionVNoValueFailed()
+  {
+    this.expected.expect(PostconditionViolationException.class);
+    this.expected.expect(new ViolationMatcher(1));
+
+    Postconditions.checkPostconditionV(
+      false,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+  }
+  
   private class ViolationMatcher extends TypeSafeMatcher<ContractException>
   {
     private final int expected;

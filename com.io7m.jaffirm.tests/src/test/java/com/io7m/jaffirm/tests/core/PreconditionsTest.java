@@ -1117,7 +1117,9 @@ public final class PreconditionsTest
     this.expected.expect(new ViolationMatcher(1));
 
     Preconditions.checkPrecondition(
-      Integer.valueOf(23), 23 < 23, x -> String.format("Value %d must < 23", x));
+      Integer.valueOf(23),
+      23 < 23,
+      x -> String.format("Value %d must < 23", x));
   }
 
   @Test
@@ -1139,6 +1141,51 @@ public final class PreconditionsTest
       Integer.valueOf(22), true, x -> String.format("Value %d must < 23", x));
 
     Assert.assertEquals(Integer.valueOf(22), r);
+  }
+
+  @Test
+  public void testPreconditionV()
+  {
+    final Integer r = Preconditions.checkPreconditionV(
+      Integer.valueOf(22),
+      true,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+
+    Assert.assertEquals(Integer.valueOf(22), r);
+  }
+
+  @Test
+  public void testPreconditionVFailed()
+  {
+    this.expected.expect(PreconditionViolationException.class);
+    this.expected.expect(new ViolationMatcher(1));
+
+    Preconditions.checkPreconditionV(
+      Integer.valueOf(22),
+      false,
+      "Failed");
+  }
+
+  @Test
+  public void testPreconditionVNoValue()
+  {
+    Preconditions.checkPreconditionV(
+      true,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
+  }
+
+  @Test
+  public void testPreconditionVNoValueFailed()
+  {
+    this.expected.expect(PreconditionViolationException.class);
+    this.expected.expect(new ViolationMatcher(1));
+
+    Preconditions.checkPreconditionV(
+      false,
+      "Value %d must be < 23",
+      Integer.valueOf(22));
   }
 
   private class ViolationMatcher extends TypeSafeMatcher<ContractException>
