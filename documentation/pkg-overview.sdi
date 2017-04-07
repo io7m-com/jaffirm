@@ -1,0 +1,5 @@
+[section [title Orientation] [id pkg.orientation]]
+[subsection [title Overview] [id pkg.orientation.overview]]
+[paragraph]
+The [term [type package] com.io7m.jaffirm] package provides simple and
+fast pre/postcondition and invariant checking functions.
