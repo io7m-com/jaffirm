@@ -3,6 +3,17 @@
   <c:project>com.io7m.jaffirm</c:project>
 
   <c:release c:ticket-system="com.github.io7m.jaffirm">
+    <c:date>2017-04-07</c:date>
+    <c:version>1.1.0</c:version>
+    <c:item>
+      <c:date>2017-04-07</c:date>
+      <c:type-code-new/>
+      <c:ticket>3</c:ticket>
+      <c:summary>Add variadic preconditions/postconditions/invariants.</c:summary>
+    </c:item>
+  </c:release>
+
+  <c:release c:ticket-system="com.github.io7m.jaffirm">
     <c:date>2017-04-05</c:date>
     <c:version>1.0.1</c:version>
     <c:item>

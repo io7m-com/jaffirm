@@ -278,6 +278,60 @@ public final class Invariants
   }
 
   /**
+   * <p>A version of {@link #checkInvariant(boolean, String)} that constructs a
+   * description message from the given format string and arguments.</p>
+   *
+   * <p>Note that the use of variadic arguments may entail allocating memory on
+   * virtual machines that fail to eliminate the allocations with <i>escape
+   * analysis</i>.</p>
+   *
+   * @param value     The value
+   * @param condition The predicate
+   * @param format    The format string
+   * @param objects   The format string arguments
+   * @param <T>       The precise type of values
+   *
+   * @return {@code value}
+   *
+   * @since 1.1.0
+   */
+
+  public static <T> T checkInvariantV(
+    final T value,
+    final boolean condition,
+    final String format,
+    final Object... objects)
+  {
+    if (!condition) {
+      throw failed(value, singleViolation(String.format(format, objects)));
+    }
+    return value;
+  }
+
+  /**
+   * <p>A version of {@link #checkInvariant(boolean, String)} that constructs a
+   * description message from the given format string and arguments.</p>
+   *
+   * <p>Note that the use of variadic arguments may entail allocating memory on
+   * virtual machines that fail to eliminate the allocations with <i>escape
+   * analysis</i>.</p>
+   *
+   * @param condition The predicate
+   * @param format    The format string
+   * @param objects   The format string arguments
+   *
+   * @since 1.1.0
+   */
+
+  public static void checkInvariantV(
+    final boolean condition,
+    final String format,
+    final Object... objects)
+  {
+    checkInvariantV("<unspecified>", condition, format, objects);
+  }
+
+  /**
    * An {@code int} specialized version of {@link #checkInvariant(Object,
    * ContractConditionType)}.
    *
