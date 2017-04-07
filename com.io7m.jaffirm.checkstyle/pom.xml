@@ -7,15 +7,19 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
-    <artifactId>io7m-jaffirm</artifactId>
-    <version>1.0.0</version>
+    <artifactId>com.io7m.jaffirm</artifactId>
+    <version>1.0.1</version>
   </parent>
-  <artifactId>io7m-jaffirm-checkstyle</artifactId>
+  <artifactId>com.io7m.jaffirm.checkstyle</artifactId>
 
   <packaging>jar</packaging>
-  <name>io7m-jaffirm-checkstyle</name>
+  <name>com.io7m.jaffirm.checkstyle</name>
   <description>Contract checking (Checkstyle policy)</description>
   <url>http://io7m.github.io/jaffirm/</url>
+
+  <properties>
+    <io7m.api.previousArtifactId>io7m-jaffirm-checkstyle</io7m.api.previousArtifactId>
+  </properties>
 
   <scm>
     <url>${project.parent.scm.url}</url>
@@ -26,7 +30,7 @@
   <dependencies>
     <dependency>
       <groupId>com.io7m.jnull</groupId>
-      <artifactId>io7m-jnull-core</artifactId>
+      <artifactId>com.io7m.jnull.core</artifactId>
     </dependency>
   </dependencies>
 
