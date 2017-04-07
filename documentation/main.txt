@@ -1,4 +1,4 @@
-com.io7m.jaffirm 1.0.1 Documentation
+com.io7m.jaffirm 1.1.0 Documentation
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   Contents
