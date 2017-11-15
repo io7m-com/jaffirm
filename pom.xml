@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor</artifactId>
-    <version>2.0.0-beta0008</version>
+    <version>2.0.0-beta0012</version>
   </parent>
 
   <groupId>com.io7m.jaffirm</groupId>
@@ -34,6 +34,7 @@
 
     <!-- Temporarily work around a lack of JDK 9 compatibility -->
     <mdep.analyze.skip>true</mdep.analyze.skip>
+    <io7m.org.immutables.version>2.6.0-alpha1</io7m.org.immutables.version>
   </properties>
 
   <licenses>
@@ -93,13 +94,13 @@
       <dependency>
         <groupId>com.io7m.junreachable</groupId>
         <artifactId>com.io7m.junreachable.core</artifactId>
-        <version>2.0.0-beta0003</version>
+        <version>2.0.0-beta0004</version>
       </dependency>
 
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
-        <version>2.6.0.alpha0</version>
+        <version>${io7m.org.immutables.version}</version>
       </dependency>
 
       <dependency>
