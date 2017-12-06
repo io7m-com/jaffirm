@@ -18,25 +18,20 @@ package com.io7m.jaffirm.tests.core;
 
 import com.io7m.jaffirm.core.ContractCondition;
 import com.io7m.jaffirm.core.ContractConditionType;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class ContractConditionTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   @Test
   public void testConditionBuilder0()
   {
     final ContractCondition.Builder<Object> b = ContractCondition.builder();
 
-    this.expected.expect(IllegalStateException.class);
-    b.build();
+    Assertions.assertThrows(IllegalStateException.class, b::build);
   }
 
   @Test
@@ -45,8 +40,7 @@ public final class ContractConditionTest
     final ContractCondition.Builder<Object> b = ContractCondition.builder();
 
     b.setPredicate(x -> true);
-    this.expected.expect(IllegalStateException.class);
-    b.build();
+    Assertions.assertThrows(IllegalStateException.class, b::build);
   }
 
   @Test
@@ -55,8 +49,7 @@ public final class ContractConditionTest
     final ContractCondition.Builder<Object> b = ContractCondition.builder();
 
     b.setDescriber(x -> "description");
-    this.expected.expect(IllegalStateException.class);
-    b.build();
+    Assertions.assertThrows(IllegalStateException.class, b::build);
   }
 
   @Test
@@ -70,13 +63,13 @@ public final class ContractConditionTest
     final ContractCondition<Object> c0 = ContractCondition.of(fa, da);
     final ContractCondition<Object> c1 = ContractCondition.of(fa, da);
 
-    Assert.assertEquals(c0, c1);
-    Assert.assertEquals(c1, c0);
-    Assert.assertEquals((long) c0.hashCode(), (long) c1.hashCode());
-    Assert.assertEquals(c0.toString(), c1.toString());
+    Assertions.assertEquals(c0, c1);
+    Assertions.assertEquals(c1, c0);
+    Assertions.assertEquals((long) c0.hashCode(), (long) c1.hashCode());
+    Assertions.assertEquals(c0.toString(), c1.toString());
 
-    Assert.assertEquals(ContractCondition.copyOf(c0), c0);
-    Assert.assertEquals(ContractCondition.copyOf(
+    Assertions.assertEquals(ContractCondition.copyOf(c0), c0);
+    Assertions.assertEquals(ContractCondition.copyOf(
       new ContractConditionType<Object>()
       {
         @Override
@@ -91,17 +84,17 @@ public final class ContractConditionTest
           return da;
         }
       }), c0);
-    Assert.assertEquals(ContractCondition.builder().from(c0).build(), c0);
+    Assertions.assertEquals(ContractCondition.builder().from(c0).build(), c0);
 
-    Assert.assertNotEquals(c0, Integer.valueOf(23));
-    Assert.assertNotEquals(c0, null);
+    Assertions.assertNotEquals(c0, Integer.valueOf(23));
+    Assertions.assertNotEquals(c0, null);
 
-    Assert.assertNotEquals(c0, ContractCondition.of(fa, db));
-    Assert.assertNotEquals(c0, ContractCondition.of(fb, da));
-    Assert.assertNotEquals(c0.withPredicate(fb), c0);
-    Assert.assertNotEquals(c0.withDescriber(db), c0);
+    Assertions.assertNotEquals(c0, ContractCondition.of(fa, db));
+    Assertions.assertNotEquals(c0, ContractCondition.of(fb, da));
+    Assertions.assertNotEquals(c0.withPredicate(fb), c0);
+    Assertions.assertNotEquals(c0.withDescriber(db), c0);
 
-    Assert.assertEquals(c0.withPredicate(c0.predicate()), c0);
-    Assert.assertEquals(c0.withDescriber(c0.describer()), c0);
+    Assertions.assertEquals(c0.withPredicate(c0.predicate()), c0);
+    Assertions.assertEquals(c0.withDescriber(c0.describer()), c0);
   }
 }

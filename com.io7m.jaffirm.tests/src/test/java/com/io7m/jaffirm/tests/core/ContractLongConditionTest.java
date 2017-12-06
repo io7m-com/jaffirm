@@ -18,25 +18,19 @@ package com.io7m.jaffirm.tests.core;
 
 import com.io7m.jaffirm.core.ContractLongCondition;
 import com.io7m.jaffirm.core.ContractLongConditionType;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 
 public final class ContractLongConditionTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   @Test
   public void testConditionBuilder0()
   {
     final ContractLongCondition.Builder b = ContractLongCondition.builder();
-
-    this.expected.expect(IllegalStateException.class);
-    b.build();
+    Assertions.assertThrows(IllegalStateException.class, b::build);
   }
 
   @Test
@@ -45,8 +39,7 @@ public final class ContractLongConditionTest
     final ContractLongCondition.Builder b = ContractLongCondition.builder();
 
     b.setPredicate(x -> true);
-    this.expected.expect(IllegalStateException.class);
-    b.build();
+    Assertions.assertThrows(IllegalStateException.class, b::build);
   }
 
   @Test
@@ -55,8 +48,7 @@ public final class ContractLongConditionTest
     final ContractLongCondition.Builder b = ContractLongCondition.builder();
 
     b.setDescriber(x -> "description");
-    this.expected.expect(IllegalStateException.class);
-    b.build();
+    Assertions.assertThrows(IllegalStateException.class, b::build);
   }
 
   @Test
@@ -70,13 +62,13 @@ public final class ContractLongConditionTest
     final ContractLongCondition c0 = ContractLongCondition.of(fa, da);
     final ContractLongCondition c1 = ContractLongCondition.of(fa, da);
 
-    Assert.assertEquals(c0, c1);
-    Assert.assertEquals(c1, c0);
-    Assert.assertEquals((long) c0.hashCode(), (long) c1.hashCode());
-    Assert.assertEquals(c0.toString(), c1.toString());
+    Assertions.assertEquals(c0, c1);
+    Assertions.assertEquals(c1, c0);
+    Assertions.assertEquals((long) c0.hashCode(), (long) c1.hashCode());
+    Assertions.assertEquals(c0.toString(), c1.toString());
 
-    Assert.assertEquals(ContractLongCondition.copyOf(c0), c0);
-    Assert.assertEquals(ContractLongCondition.copyOf(
+    Assertions.assertEquals(ContractLongCondition.copyOf(c0), c0);
+    Assertions.assertEquals(ContractLongCondition.copyOf(
       new ContractLongConditionType()
       {
         @Override
@@ -91,17 +83,19 @@ public final class ContractLongConditionTest
           return da;
         }
       }), c0);
-    Assert.assertEquals(ContractLongCondition.builder().from(c0).build(), c0);
+    Assertions.assertEquals(
+      ContractLongCondition.builder().from(c0).build(),
+      c0);
 
-    Assert.assertNotEquals(c0, Long.valueOf(23));
-    Assert.assertNotEquals(c0, null);
+    Assertions.assertNotEquals(c0, Long.valueOf(23));
+    Assertions.assertNotEquals(c0, null);
 
-    Assert.assertNotEquals(c0, ContractLongCondition.of(fa, db));
-    Assert.assertNotEquals(c0, ContractLongCondition.of(fb, da));
-    Assert.assertNotEquals(c0.withPredicate(fb), c0);
-    Assert.assertNotEquals(c0.withDescriber(db), c0);
+    Assertions.assertNotEquals(c0, ContractLongCondition.of(fa, db));
+    Assertions.assertNotEquals(c0, ContractLongCondition.of(fb, da));
+    Assertions.assertNotEquals(c0.withPredicate(fb), c0);
+    Assertions.assertNotEquals(c0.withDescriber(db), c0);
 
-    Assert.assertEquals(c0.withPredicate(c0.predicate()), c0);
-    Assert.assertEquals(c0.withDescriber(c0.describer()), c0);
+    Assertions.assertEquals(c0.withPredicate(c0.predicate()), c0);
+    Assertions.assertEquals(c0.withDescriber(c0.describer()), c0);
   }
 }

@@ -16,27 +16,18 @@
 
 package com.io7m.jaffirm.tests.core;
 
-import com.io7m.jaffirm.core.ContractException;
 import com.io7m.jaffirm.core.Contracts;
 import com.io7m.jaffirm.core.InvariantViolationException;
 import com.io7m.jaffirm.core.Invariants;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.String.format;
-
 public final class InvariantsTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   @Test
   public void testUnreachable()
     throws Exception
@@ -44,127 +35,155 @@ public final class InvariantsTest
     final Constructor<Invariants> c = Invariants.class.getDeclaredConstructor();
     c.setAccessible(true);
 
-    this.expected.expect(InvocationTargetException.class);
-    c.newInstance();
+    Assertions.assertThrows(InvocationTargetException.class, c::newInstance);
   }
 
   @Test
   public void testInvariantsViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariants(Integer.valueOf(23), Contracts.condition(
         x -> x.intValue() < 23,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testInvariantsViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new RuntimeException("OUCH");
+            })));
 
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> String.format("Value %d must be < 23", x)));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new Error("OUCH");
+            },
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
   }
 
   @Test
   public void testInvariantsViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new RuntimeException("OUCH");
+            },
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsViolationMulti()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() > 23,
+            x -> String.format(
+              "Value %d must be > 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() > 23,
-        x -> String.format("Value %d must be > 23", x)),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testInvariantsViolationMultiLast()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() == 23,
+            x -> String.format(
+              "Value %d must be == 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() == 23,
-        x -> String.format("Value %d must be == 23", x)),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsViolationMultiFirst()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariants(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() == 23,
+            x -> String.format(
+              "Value %d must be == 23",
+              x))));
 
-    Invariants.checkInvariants(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)),
-      Contracts.condition(
-        x -> x.intValue() == 23,
-        x -> String.format("Value %d must be == 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -179,7 +198,7 @@ public final class InvariantsTest
         x -> x.intValue() < 23,
         x -> String.format("Value %d must be < 23", x)));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
@@ -214,141 +233,147 @@ public final class InvariantsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testInvariantsIntViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsIntViolationMulti()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
+          x -> x > 23,
+          x -> String.format(
+            "Value %d must be > 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x)))));
 
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
-        x -> x > 23,
-        x -> format("Value %d must be > 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testInvariantsIntViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsIntViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
         x -> x < 23,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testInvariantsIntViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsIntViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+        x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
   }
 
   @Test
   public void testInvariantsIntMulti()
   {
-    final int r = Invariants.checkInvariantsI(
-      22,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    final int r = Invariants.checkInvariantsI(22, Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format(
+        "Value %d must be < 23",
+        Integer.valueOf(x))), Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format(
+        "Value %d must be < 23",
+        Integer.valueOf(x))));
 
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testInvariantsIntViolationMultiLast()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
+          x -> x == 23,
+          x -> String.format(
+            "Value %d must be == 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x)))));
 
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
-        x -> x == 23,
-        x -> format("Value %d must be == 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsIntViolationMultiFirst()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x == 23,
+          x -> String.format(
+            "Value %d must be == 23",
+            Integer.valueOf(x)))));
 
-    Invariants.checkInvariantsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x == 23,
-        x -> format("Value %d must be == 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -383,141 +408,162 @@ public final class InvariantsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testInvariantsLongViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format("Value %d must be < 23", Long.valueOf(x)))));
 
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsLongViolationMulti()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsL(
+          23L,
+          Contracts.conditionL(
+            x -> x > 23L,
+            x -> String.format(
+              "Value %d must be > 23",
+              Long.valueOf(x))),
+          Contracts.conditionL(
+            x -> x < 23L,
+            x -> String.format(
+              "Value %d must be < 23",
+              Long.valueOf(x)))));
 
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
-        x -> x > 23L,
-        x -> format("Value %d must be > 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testInvariantsLongMulti()
   {
-    final long r = Invariants.checkInvariantsL(
-      22L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    final long r =
+      Invariants.checkInvariantsL(
+        22L,
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))));
 
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testInvariantsLongViolationMultiLast()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsL(
+        23L,
+        Contracts.conditionL(
+          x -> x == 23L,
+          x -> String.format(
+            "Value %d must be == 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x)))));
 
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
-        x -> x == 23L,
-        x -> format("Value %d must be == 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsLongViolationMultiFirst()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsL(
+        23L,
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x == 23L,
+          x -> String.format(
+            "Value %d must be == 23",
+            Long.valueOf(x)))));
 
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x == 23L,
-        x -> format("Value %d must be == 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsLongViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsLongViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariantsL(23L, Contracts.conditionL(
         x -> x < 23L,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testInvariantsLongViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsL(23L, Contracts.conditionL(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf((double) x)))));
 
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> format("Value %f must be < 23", Double.valueOf((double) x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsLongViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantsL(
-      23L,
-      Contracts.conditionL(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariantsL(23L, Contracts.conditionL(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf((double) x))));
+        x -> String.format(
+          "Value %f must be < 23",
+          Double.valueOf((double) x)))));
   }
 
   @Test
@@ -552,141 +598,155 @@ public final class InvariantsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testInvariantsDoubleViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsDoubleViolationMulti()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantsD(
+          23.0,
+          Contracts.conditionD(
+            x -> x > 23.0,
+            x -> String.format(
+              "Value %f must be > 23",
+              Double.valueOf(x))),
+          Contracts.conditionD(
+            x -> x < 23.0,
+            x -> String.format(
+              "Value %f must be < 23",
+              Double.valueOf(x)))));
 
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x > 23.0,
-        x -> format("Value %f must be > 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testInvariantsDoubleViolationMultiLast()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsD(
+        23.0,
+        Contracts.conditionD(
+          x -> x == 23.0,
+          x -> String.format(
+            "Value %f must be == 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x)))));
 
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x == 23.0,
-        x -> format("Value %f must be == 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsDoubleViolationMultiFirst()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsD(
+        23.0,
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x == 23.0,
+          x -> String.format(
+            "Value %f must be == 23",
+            Double.valueOf(x)))));
 
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x == 23.0,
-        x -> format("Value %f must be == 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsDoubleViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
         x -> {
           throw new RuntimeException("OUCH");
-        }));
+        })));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsDoubleViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariantsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testInvariantsDoubleViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantsD(23.0, Contracts.conditionD(
         x -> {
           throw new RuntimeException("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantsDoubleViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantsD(
-      23.0,
-      Contracts.conditionD(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Invariants.checkInvariantsD(23.0, Contracts.conditionD(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
   }
 
   @Test
   public void testInvariantsDoubleMulti()
   {
-    final double r = Invariants.checkInvariantsD(
-      22.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    final double r =
+      Invariants.checkInvariantsD(
+        22.0,
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))));
 
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
@@ -721,78 +781,88 @@ public final class InvariantsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testInvariantViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Invariants.checkInvariant(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new RuntimeException("OUCH");
+            })));
 
-    Invariants.checkInvariant(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariant(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariant(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new Error("OUCH");
+            })));
   }
 
   @Test
   public void testInvariantViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new RuntimeException("OUCH");
+            },
+            x -> "x")));
 
-    Invariants.checkInvariant(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariant(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariant(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new Error("OUCH");
+            },
+            x -> "x")));
   }
 
   @Test
@@ -804,102 +874,99 @@ public final class InvariantsTest
         x -> x.intValue() < 23,
         x -> String.format("Value %d must be < 23", x)));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
   public void testInvariantSupplierException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(false, () -> {
+          throw new RuntimeException("OUCH");
+        }));
 
-    Invariants.checkInvariant(
-      false, () -> {
-        throw new RuntimeException("OUCH");
-      });
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantIntViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Invariants.checkInvariantI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantIntViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Invariants.checkInvariantI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantIntViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariantI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testInvariantIntViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantI(23, Contracts.conditionI(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Invariants.checkInvariantI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantIntViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariantI(23, Contracts.conditionI(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testInvariantInt()
   {
-    final int r = Invariants.checkInvariantI(
-      22,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    final int r = Invariants.checkInvariantI(22, Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format("Value %d must be < 23", Integer.valueOf(x))));
 
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
@@ -907,90 +974,86 @@ public final class InvariantsTest
   {
     final int r =
       Invariants.checkInvariantI(22, true, x -> "OK");
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testInvariantLongViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format("Value %d must be < 23", Long.valueOf(x)))));
 
-    Invariants.checkInvariantL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantLongViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Invariants.checkInvariantL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantLongViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariantL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testInvariantLongViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantL(23L, Contracts.conditionL(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Invariants.checkInvariantL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantLongViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariantL(23L, Contracts.conditionL(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testInvariantLong()
   {
-    final long r = Invariants.checkInvariantL(
-      22L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    final long r = Invariants.checkInvariantL(22L, Contracts.conditionL(
+      x -> x < 23L,
+      x -> String.format("Value %d must be < 23", Long.valueOf(x))));
 
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
@@ -998,90 +1061,87 @@ public final class InvariantsTest
   {
     final long r =
       Invariants.checkInvariantL(22L, true, x -> "OK");
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testInvariantDoubleViolation()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
 
-    Invariants.checkInvariantD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantDoubleViolationDescriberException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Invariants.checkInvariantD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantDoubleViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariantD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testInvariantDoubleViolationPredicateException()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantD(23.0, Contracts.conditionD(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Invariants.checkInvariantD(
-      23.0,
-      Contracts.conditionD(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantDoubleViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Invariants.checkInvariantD(
-      23.0,
-      Contracts.conditionD(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Invariants.checkInvariantD(23.0, Contracts.conditionD(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testInvariantDouble()
   {
-    final double r = Invariants.checkInvariantD(
-      22.0,
-      Contracts.conditionD(
+    final double r =
+      Invariants.checkInvariantD(22.0, Contracts.conditionD(
         x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x))));
 
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
@@ -1089,37 +1149,45 @@ public final class InvariantsTest
   {
     final double r = Invariants.checkInvariantD(
       22.0, true, x -> "OK");
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
   public void testInvariantSimpleViolation0()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(false, () -> "Value must true"));
 
-    Invariants.checkInvariant(false, () -> "Value must true");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantSimpleViolation1()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(false, "Value must true"));
 
-    Invariants.checkInvariant(false, "Value must true");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testInvariantSimpleViolation2()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariant(
+          Integer.valueOf(23),
+          23 < 23,
+          x -> String.format(
+            "Value %d must < 23",
+            x)));
 
-    Invariants.checkInvariant(
-      Integer.valueOf(23),
-      23 < 23,
-      x -> String.format("Value %d must < 23", x));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -1138,9 +1206,11 @@ public final class InvariantsTest
   public void testInvariantSimple2()
   {
     final Integer r = Invariants.checkInvariant(
-      Integer.valueOf(22), true, x -> String.format("Value %d must < 23", x));
+      Integer.valueOf(22),
+      true,
+      x -> String.format("Value %d must < 23", x));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
@@ -1152,19 +1222,18 @@ public final class InvariantsTest
       "Value %d must be < 23",
       Integer.valueOf(22));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
   public void testInvariantVFailed()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex =
+      Assertions.assertThrows(
+        InvariantViolationException.class,
+        () -> Invariants.checkInvariantV(Integer.valueOf(22), false, "Failed"));
 
-    Invariants.checkInvariantV(
-      Integer.valueOf(22),
-      false,
-      "Failed");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -1179,38 +1248,13 @@ public final class InvariantsTest
   @Test
   public void testInvariantVNoValueFailed()
   {
-    this.expected.expect(InvariantViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final InvariantViolationException ex = Assertions.assertThrows(
+      InvariantViolationException.class,
+      () -> Invariants.checkInvariantV(
+        false,
+        "Value %d must be < 23",
+        Integer.valueOf(22)));
 
-    Invariants.checkInvariantV(
-      false,
-      "Value %d must be < 23",
-      Integer.valueOf(22));
-  }
-
-  private class ViolationMatcher extends TypeSafeMatcher<ContractException>
-  {
-    private final int expected;
-    private int count;
-
-    public ViolationMatcher(final int expected)
-    {
-      this.expected = expected;
-    }
-
-    @Override
-    protected boolean matchesSafely(final ContractException exception)
-    {
-      this.count = exception.violations();
-      return this.expected == this.count;
-    }
-
-    @Override
-    public void describeTo(final Description description)
-    {
-      description.appendValue(Integer.valueOf(this.count))
-        .appendText(" was returned instead of ")
-        .appendValue(Integer.valueOf(this.expected));
-    }
+    Assertions.assertEquals(1, ex.violations());
   }
 }

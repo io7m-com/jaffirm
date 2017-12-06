@@ -21,10 +21,8 @@ import com.io7m.jaffirm.core.ContractDoubleCondition;
 import com.io7m.jaffirm.core.ContractIntCondition;
 import com.io7m.jaffirm.core.ContractLongCondition;
 import com.io7m.jaffirm.core.Contracts;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -39,8 +37,6 @@ import java.util.function.Predicate;
 
 public final class ContractsTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   @Test
   public void testContractUnreachable()
     throws Exception
@@ -48,8 +44,7 @@ public final class ContractsTest
     final Constructor<Contracts> c = Contracts.class.getDeclaredConstructor();
     c.setAccessible(true);
 
-    this.expected.expect(InvocationTargetException.class);
-    c.newInstance();
+    Assertions.assertThrows(InvocationTargetException.class, c::newInstance);
   }
 
   @Test
@@ -57,8 +52,8 @@ public final class ContractsTest
   {
     final Predicate<Object> predicate = x -> true;
     final Function<Object, String> describer = x -> "x";
-    
-    Assert.assertEquals(
+
+    Assertions.assertEquals(
       ContractCondition.of(predicate, describer),
       Contracts.condition(predicate, describer));
   }
@@ -69,7 +64,7 @@ public final class ContractsTest
     final IntPredicate predicate = x -> true;
     final IntFunction<String> describer = x -> "x";
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
       ContractIntCondition.of(predicate, describer),
       Contracts.conditionI(predicate, describer));
   }
@@ -80,7 +75,7 @@ public final class ContractsTest
     final LongPredicate predicate = x -> true;
     final LongFunction<String> describer = x -> "x";
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
       ContractLongCondition.of(predicate, describer),
       Contracts.conditionL(predicate, describer));
   }
@@ -91,7 +86,7 @@ public final class ContractsTest
     final DoublePredicate predicate = x -> true;
     final DoubleFunction<String> describer = x -> "x";
 
-    Assert.assertEquals(
+    Assertions.assertEquals(
       ContractDoubleCondition.of(predicate, describer),
       Contracts.conditionD(predicate, describer));
   }

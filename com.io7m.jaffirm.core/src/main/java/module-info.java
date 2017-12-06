@@ -14,9 +14,14 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/**
+ * Core types and functions.
+ */
+
 module com.io7m.jaffirm.core
 {
   requires static org.immutables.value;
+
   requires com.io7m.junreachable.core;
 
   exports com.io7m.jaffirm.core;
