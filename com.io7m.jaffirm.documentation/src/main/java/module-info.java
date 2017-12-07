@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017 <code@io7m.com> http://io7m.com
+ * Copyright © 2015 <code@io7m.com> http://io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,26 +14,13 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jaffirm.tests.core;
+/**
+ * Documentation.
+ */
 
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-public final class SafeApplicationTest
+module com.io7m.jaffirm.documentation
 {
-  @Test
-  public void testUnreachable()
-    throws Exception
-  {
-    final Class<?> cc = Class.forName("com.io7m.jaffirm.core.SafeApplication");
+  requires com.io7m.jaffirm.core;
 
-    final Constructor<?> c = cc.getDeclaredConstructor();
-    c.setAccessible(true);
-
-    Assertions.assertThrows(InvocationTargetException.class, c::newInstance);
-  }
+  exports com.io7m.jaffirm.documentation;
 }

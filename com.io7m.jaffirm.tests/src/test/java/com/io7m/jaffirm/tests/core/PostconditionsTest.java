@@ -16,27 +16,18 @@
 
 package com.io7m.jaffirm.tests.core;
 
-import com.io7m.jaffirm.core.ContractException;
 import com.io7m.jaffirm.core.Contracts;
 import com.io7m.jaffirm.core.PostconditionViolationException;
 import com.io7m.jaffirm.core.Postconditions;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.String.format;
-
 public final class PostconditionsTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   @Test
   public void testUnreachable()
     throws Exception
@@ -44,127 +35,155 @@ public final class PostconditionsTest
     final Constructor<Postconditions> c = Postconditions.class.getDeclaredConstructor();
     c.setAccessible(true);
 
-    this.expected.expect(InvocationTargetException.class);
-    c.newInstance();
+    Assertions.assertThrows(InvocationTargetException.class, c::newInstance);
   }
 
   @Test
   public void testPostconditionsViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditions(Integer.valueOf(23), Contracts.condition(
         x -> x.intValue() < 23,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPostconditionsViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new RuntimeException("OUCH");
+            })));
 
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> String.format("Value %d must be < 23", x)));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new Error("OUCH");
+            },
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
   }
 
   @Test
   public void testPostconditionsViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new RuntimeException("OUCH");
+            },
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsViolationMulti()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() > 23,
+            x -> String.format(
+              "Value %d must be > 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() > 23,
-        x -> String.format("Value %d must be > 23", x)),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPostconditionsViolationMultiLast()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() == 23,
+            x -> String.format(
+              "Value %d must be == 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() == 23,
-        x -> String.format("Value %d must be == 23", x)),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsViolationMultiFirst()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() == 23,
+            x -> String.format(
+              "Value %d must be == 23",
+              x))));
 
-    Postconditions.checkPostconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)),
-      Contracts.condition(
-        x -> x.intValue() == 23,
-        x -> String.format("Value %d must be == 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -179,7 +198,7 @@ public final class PostconditionsTest
         x -> x.intValue() < 23,
         x -> String.format("Value %d must be < 23", x)));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
@@ -214,141 +233,147 @@ public final class PostconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPostconditionsIntViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsIntViolationMulti()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
+          x -> x > 23,
+          x -> String.format(
+            "Value %d must be > 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x)))));
 
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x > 23,
-        x -> format("Value %d must be > 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPostconditionsIntViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsIntViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
         x -> x < 23,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPostconditionsIntViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsIntViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+        x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
   }
 
   @Test
   public void testPostconditionsIntMulti()
   {
-    final int r = Postconditions.checkPostconditionsI(
-      22,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    final int r = Postconditions.checkPostconditionsI(22, Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format(
+        "Value %d must be < 23",
+        Integer.valueOf(x))), Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format(
+        "Value %d must be < 23",
+        Integer.valueOf(x))));
 
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testPostconditionsIntViolationMultiLast()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
+          x -> x == 23,
+          x -> String.format(
+            "Value %d must be == 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x)))));
 
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x == 23,
-        x -> format("Value %d must be == 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsIntViolationMultiFirst()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x == 23,
+          x -> String.format(
+            "Value %d must be == 23",
+            Integer.valueOf(x)))));
 
-    Postconditions.checkPostconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x == 23,
-        x -> format("Value %d must be == 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -383,141 +408,162 @@ public final class PostconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPostconditionsLongViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format("Value %d must be < 23", Long.valueOf(x)))));
 
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsLongViolationMulti()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsL(
+          23L,
+          Contracts.conditionL(
+            x -> x > 23L,
+            x -> String.format(
+              "Value %d must be > 23",
+              Long.valueOf(x))),
+          Contracts.conditionL(
+            x -> x < 23L,
+            x -> String.format(
+              "Value %d must be < 23",
+              Long.valueOf(x)))));
 
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x > 23L,
-        x -> format("Value %d must be > 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPostconditionsLongMulti()
   {
-    final long r = Postconditions.checkPostconditionsL(
-      22L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    final long r =
+      Postconditions.checkPostconditionsL(
+        22L,
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))));
 
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testPostconditionsLongViolationMultiLast()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsL(
+        23L,
+        Contracts.conditionL(
+          x -> x == 23L,
+          x -> String.format(
+            "Value %d must be == 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x)))));
 
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x == 23L,
-        x -> format("Value %d must be == 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsLongViolationMultiFirst()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsL(
+        23L,
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x == 23L,
+          x -> String.format(
+            "Value %d must be == 23",
+            Long.valueOf(x)))));
 
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x == 23L,
-        x -> format("Value %d must be == 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsLongViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsLongViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditionsL(23L, Contracts.conditionL(
         x -> x < 23L,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPostconditionsLongViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsL(23L, Contracts.conditionL(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf((double) x)))));
 
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> format("Value %f must be < 23", Double.valueOf((double) x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsLongViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionsL(
-      23L,
-      Contracts.conditionL(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditionsL(23L, Contracts.conditionL(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf((double) x))));
+        x -> String.format(
+          "Value %f must be < 23",
+          Double.valueOf((double) x)))));
   }
 
   @Test
@@ -552,141 +598,155 @@ public final class PostconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPostconditionsDoubleViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsDoubleViolationMulti()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionsD(
+          23.0,
+          Contracts.conditionD(
+            x -> x > 23.0,
+            x -> String.format(
+              "Value %f must be > 23",
+              Double.valueOf(x))),
+          Contracts.conditionD(
+            x -> x < 23.0,
+            x -> String.format(
+              "Value %f must be < 23",
+              Double.valueOf(x)))));
 
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x > 23.0,
-        x -> format("Value %f must be > 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPostconditionsDoubleViolationMultiLast()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsD(
+        23.0,
+        Contracts.conditionD(
+          x -> x == 23.0,
+          x -> String.format(
+            "Value %f must be == 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x)))));
 
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x == 23.0,
-        x -> format("Value %f must be == 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsDoubleViolationMultiFirst()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsD(
+        23.0,
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x == 23.0,
+          x -> String.format(
+            "Value %f must be == 23",
+            Double.valueOf(x)))));
 
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x == 23.0,
-        x -> format("Value %f must be == 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsDoubleViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
         x -> {
           throw new RuntimeException("OUCH");
-        }));
+        })));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsDoubleViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditionsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPostconditionsDoubleViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionsD(23.0, Contracts.conditionD(
         x -> {
           throw new RuntimeException("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionsDoubleViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Postconditions.checkPostconditionsD(23.0, Contracts.conditionD(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
   }
 
   @Test
   public void testPostconditionsDoubleMulti()
   {
-    final double r = Postconditions.checkPostconditionsD(
-      22.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    final double r =
+      Postconditions.checkPostconditionsD(
+        22.0,
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))));
 
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
@@ -721,78 +781,88 @@ public final class PostconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPostconditionViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Postconditions.checkPostcondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new RuntimeException("OUCH");
+            })));
 
-    Postconditions.checkPostcondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostcondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostcondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new Error("OUCH");
+            })));
   }
 
   @Test
   public void testPostconditionViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new RuntimeException("OUCH");
+            },
+            x -> "x")));
 
-    Postconditions.checkPostcondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostcondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostcondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new Error("OUCH");
+            },
+            x -> "x")));
   }
 
   @Test
@@ -804,284 +874,274 @@ public final class PostconditionsTest
         x -> x.intValue() < 23,
         x -> String.format("Value %d must be < 23", x)));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
   public void testPostconditionSupplierException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(false, () -> {
+          throw new RuntimeException("OUCH");
+        }));
 
-    Postconditions.checkPostcondition(
-      false, () -> {
-        throw new RuntimeException("OUCH");
-      });
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionIntViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Postconditions.checkPostconditionI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionIntViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Postconditions.checkPostconditionI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionIntViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditionI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testPostconditionIntViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionI(23, Contracts.conditionI(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Postconditions.checkPostconditionI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionIntViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditionI(23, Contracts.conditionI(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testPostconditionInt()
   {
-    final int r = Postconditions.checkPostconditionI(
-      22,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    final int r = Postconditions.checkPostconditionI(22, Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format("Value %d must be < 23", Integer.valueOf(x))));
 
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testPostconditionIntOther()
   {
-    final int r = Postconditions.checkPostconditionI(
-      22, true, x -> "OK");
-    Assert.assertEquals(22L, (long) r);
+    final int r =
+      Postconditions.checkPostconditionI(22, true, x -> "OK");
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testPostconditionLongViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format("Value %d must be < 23", Long.valueOf(x)))));
 
-    Postconditions.checkPostconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionLongViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Postconditions.checkPostconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionLongViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditionL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testPostconditionLongViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionL(23L, Contracts.conditionL(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Postconditions.checkPostconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionLongViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditionL(23L, Contracts.conditionL(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testPostconditionLong()
   {
-    final long r = Postconditions.checkPostconditionL(
-      22L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    final long r = Postconditions.checkPostconditionL(22L, Contracts.conditionL(
+      x -> x < 23L,
+      x -> String.format("Value %d must be < 23", Long.valueOf(x))));
 
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testPostconditionLongOther()
   {
-    final long r = Postconditions.checkPostconditionL(
-      22L, true, x -> "OK");
-    Assert.assertEquals(22L, r);
+    final long r =
+      Postconditions.checkPostconditionL(22L, true, x -> "OK");
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testPostconditionDoubleViolation()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
 
-    Postconditions.checkPostconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionDoubleViolationDescriberException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Postconditions.checkPostconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionDoubleViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditionD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testPostconditionDoubleViolationPredicateException()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionD(23.0, Contracts.conditionD(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Postconditions.checkPostconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionDoubleViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Postconditions.checkPostconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Postconditions.checkPostconditionD(23.0, Contracts.conditionD(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testPostconditionDouble()
   {
-    final double r = Postconditions.checkPostconditionD(
-      22.0,
-      Contracts.conditionD(
+    final double r =
+      Postconditions.checkPostconditionD(22.0, Contracts.conditionD(
         x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x))));
 
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
@@ -1089,35 +1149,45 @@ public final class PostconditionsTest
   {
     final double r = Postconditions.checkPostconditionD(
       22.0, true, x -> "OK");
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
   public void testPostconditionSimpleViolation0()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(false, () -> "Value must true"));
 
-    Postconditions.checkPostcondition(false, () -> "Value must true");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionSimpleViolation1()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(false, "Value must true"));
 
-    Postconditions.checkPostcondition(false, "Value must true");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPostconditionSimpleViolation2()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostcondition(
+          Integer.valueOf(23),
+          23 < 23,
+          x -> String.format(
+            "Value %d must < 23",
+            x)));
 
-    Postconditions.checkPostcondition(
-      Integer.valueOf(23), 23 < 23, x -> String.format("Value %d must < 23", x));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -1136,9 +1206,11 @@ public final class PostconditionsTest
   public void testPostconditionSimple2()
   {
     final Integer r = Postconditions.checkPostcondition(
-      Integer.valueOf(22), true, x -> String.format("Value %d must < 23", x));
+      Integer.valueOf(22),
+      true,
+      x -> String.format("Value %d must < 23", x));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
@@ -1150,19 +1222,18 @@ public final class PostconditionsTest
       "Value %d must be < 23",
       Integer.valueOf(22));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
   public void testPostconditionVFailed()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex =
+      Assertions.assertThrows(
+        PostconditionViolationException.class,
+        () -> Postconditions.checkPostconditionV(Integer.valueOf(22), false, "Failed"));
 
-    Postconditions.checkPostconditionV(
-      Integer.valueOf(22),
-      false,
-      "Failed");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -1177,38 +1248,13 @@ public final class PostconditionsTest
   @Test
   public void testPostconditionVNoValueFailed()
   {
-    this.expected.expect(PostconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PostconditionViolationException ex = Assertions.assertThrows(
+      PostconditionViolationException.class,
+      () -> Postconditions.checkPostconditionV(
+        false,
+        "Value %d must be < 23",
+        Integer.valueOf(22)));
 
-    Postconditions.checkPostconditionV(
-      false,
-      "Value %d must be < 23",
-      Integer.valueOf(22));
-  }
-  
-  private class ViolationMatcher extends TypeSafeMatcher<ContractException>
-  {
-    private final int expected;
-    private int count;
-
-    public ViolationMatcher(final int expected)
-    {
-      this.expected = expected;
-    }
-
-    @Override
-    protected boolean matchesSafely(final ContractException exception)
-    {
-      this.count = exception.violations();
-      return this.expected == this.count;
-    }
-
-    @Override
-    public void describeTo(final Description description)
-    {
-      description.appendValue(Integer.valueOf(this.count))
-        .appendText(" was returned instead of ")
-        .appendValue(Integer.valueOf(this.expected));
-    }
+    Assertions.assertEquals(1, ex.violations());
   }
 }

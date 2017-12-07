@@ -16,27 +16,18 @@
 
 package com.io7m.jaffirm.tests.core;
 
-import com.io7m.jaffirm.core.ContractException;
 import com.io7m.jaffirm.core.Contracts;
 import com.io7m.jaffirm.core.PreconditionViolationException;
 import com.io7m.jaffirm.core.Preconditions;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.String.format;
-
 public final class PreconditionsTest
 {
-  @Rule public final ExpectedException expected = ExpectedException.none();
-
   @Test
   public void testUnreachable()
     throws Exception
@@ -44,127 +35,155 @@ public final class PreconditionsTest
     final Constructor<Preconditions> c = Preconditions.class.getDeclaredConstructor();
     c.setAccessible(true);
 
-    this.expected.expect(InvocationTargetException.class);
-    c.newInstance();
+    Assertions.assertThrows(InvocationTargetException.class, c::newInstance);
   }
 
   @Test
   public void testPreconditionsViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditions(Integer.valueOf(23), Contracts.condition(
         x -> x.intValue() < 23,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPreconditionsViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new RuntimeException("OUCH");
+            })));
 
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> String.format("Value %d must be < 23", x)));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new Error("OUCH");
+            },
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
   }
 
   @Test
   public void testPreconditionsViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new RuntimeException("OUCH");
+            },
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsViolationMulti()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() > 23,
+            x -> String.format(
+              "Value %d must be > 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() > 23,
-        x -> String.format("Value %d must be > 23", x)),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPreconditionsViolationMultiLast()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() == 23,
+            x -> String.format(
+              "Value %d must be == 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() == 23,
-        x -> String.format("Value %d must be == 23", x)),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsViolationMultiFirst()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditions(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x)),
+          Contracts.condition(
+            x -> x.intValue() == 23,
+            x -> String.format(
+              "Value %d must be == 23",
+              x))));
 
-    Preconditions.checkPreconditions(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)),
-      Contracts.condition(
-        x -> x.intValue() == 23,
-        x -> String.format("Value %d must be == 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -179,7 +198,7 @@ public final class PreconditionsTest
         x -> x.intValue() < 23,
         x -> String.format("Value %d must be < 23", x)));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
@@ -214,141 +233,147 @@ public final class PreconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPreconditionsIntViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsIntViolationMulti()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
+          x -> x > 23,
+          x -> String.format(
+            "Value %d must be > 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x)))));
 
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x > 23,
-        x -> format("Value %d must be > 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPreconditionsIntViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsIntViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
         x -> x < 23,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPreconditionsIntViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsIntViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+        x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
   }
 
   @Test
   public void testPreconditionsIntMulti()
   {
-    final int r = Preconditions.checkPreconditionsI(
-      22,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    final int r = Preconditions.checkPreconditionsI(22, Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format(
+        "Value %d must be < 23",
+        Integer.valueOf(x))), Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format(
+        "Value %d must be < 23",
+        Integer.valueOf(x))));
 
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testPreconditionsIntViolationMultiLast()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
+          x -> x == 23,
+          x -> String.format(
+            "Value %d must be == 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x)))));
 
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x == 23,
-        x -> format("Value %d must be == 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsIntViolationMultiFirst()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format(
+            "Value %d must be < 23",
+            Integer.valueOf(x))), Contracts.conditionI(
+          x -> x == 23,
+          x -> String.format(
+            "Value %d must be == 23",
+            Integer.valueOf(x)))));
 
-    Preconditions.checkPreconditionsI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))),
-      Contracts.conditionI(
-        x -> x == 23,
-        x -> format("Value %d must be == 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -383,141 +408,162 @@ public final class PreconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPreconditionsLongViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format("Value %d must be < 23", Long.valueOf(x)))));
 
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsLongViolationMulti()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsL(
+          23L,
+          Contracts.conditionL(
+            x -> x > 23L,
+            x -> String.format(
+              "Value %d must be > 23",
+              Long.valueOf(x))),
+          Contracts.conditionL(
+            x -> x < 23L,
+            x -> String.format(
+              "Value %d must be < 23",
+              Long.valueOf(x)))));
 
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x > 23L,
-        x -> format("Value %d must be > 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPreconditionsLongMulti()
   {
-    final long r = Preconditions.checkPreconditionsL(
-      22L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    final long r =
+      Preconditions.checkPreconditionsL(
+        22L,
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))));
 
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testPreconditionsLongViolationMultiLast()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsL(
+        23L,
+        Contracts.conditionL(
+          x -> x == 23L,
+          x -> String.format(
+            "Value %d must be == 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x)))));
 
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x == 23L,
-        x -> format("Value %d must be == 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsLongViolationMultiFirst()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsL(
+        23L,
+        Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format(
+            "Value %d must be < 23",
+            Long.valueOf(x))),
+        Contracts.conditionL(
+          x -> x == 23L,
+          x -> String.format(
+            "Value %d must be == 23",
+            Long.valueOf(x)))));
 
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))),
-      Contracts.conditionL(
-        x -> x == 23L,
-        x -> format("Value %d must be == 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsLongViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsLongViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditionsL(23L, Contracts.conditionL(
         x -> x < 23L,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPreconditionsLongViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsL(23L, Contracts.conditionL(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf((double) x)))));
 
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> format("Value %f must be < 23", Double.valueOf((double) x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsLongViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionsL(
-      23L,
-      Contracts.conditionL(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditionsL(23L, Contracts.conditionL(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf((double) x))));
+        x -> String.format(
+          "Value %f must be < 23",
+          Double.valueOf((double) x)))));
   }
 
   @Test
@@ -552,141 +598,155 @@ public final class PreconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPreconditionsDoubleViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsDoubleViolationMulti()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(2));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionsD(
+          23.0,
+          Contracts.conditionD(
+            x -> x > 23.0,
+            x -> String.format(
+              "Value %f must be > 23",
+              Double.valueOf(x))),
+          Contracts.conditionD(
+            x -> x < 23.0,
+            x -> String.format(
+              "Value %f must be < 23",
+              Double.valueOf(x)))));
 
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x > 23.0,
-        x -> format("Value %f must be > 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(2, ex.violations());
   }
 
   @Test
   public void testPreconditionsDoubleViolationMultiLast()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsD(
+        23.0,
+        Contracts.conditionD(
+          x -> x == 23.0,
+          x -> String.format(
+            "Value %f must be == 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x)))));
 
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x == 23.0,
-        x -> format("Value %f must be == 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsDoubleViolationMultiFirst()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsD(
+        23.0,
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x == 23.0,
+          x -> String.format(
+            "Value %f must be == 23",
+            Double.valueOf(x)))));
 
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x == 23.0,
-        x -> format("Value %f must be == 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsDoubleViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
         x -> {
           throw new RuntimeException("OUCH");
-        }));
+        })));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsDoubleViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditionsD(23.0, Contracts.conditionD(
         x -> x < 23.0,
         x -> {
           throw new Error("OUCH");
-        }));
+        })));
   }
 
   @Test
   public void testPreconditionsDoubleViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
-
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionsD(23.0, Contracts.conditionD(
         x -> {
           throw new RuntimeException("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
+
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionsDoubleViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionsD(
-      23.0,
-      Contracts.conditionD(
+    final Error ex = Assertions.assertThrows(
+      Error.class,
+      () -> Preconditions.checkPreconditionsD(23.0, Contracts.conditionD(
         x -> {
           throw new Error("OUCH");
         },
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
   }
 
   @Test
   public void testPreconditionsDoubleMulti()
   {
-    final double r = Preconditions.checkPreconditionsD(
-      22.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))),
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    final double r =
+      Preconditions.checkPreconditionsD(
+        22.0,
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))),
+        Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format(
+            "Value %f must be < 23",
+            Double.valueOf(x))));
 
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
@@ -721,78 +781,88 @@ public final class PreconditionsTest
           throw new AssertionError();
         }));
 
-    Assert.assertEquals(3L, (long) called.get());
+    Assertions.assertEquals(3L, (long) called.get());
   }
 
   @Test
   public void testPreconditionViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> String.format(
+              "Value %d must be < 23",
+              x))));
 
-    Preconditions.checkPrecondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> String.format("Value %d must be < 23", x)));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new RuntimeException("OUCH");
+            })));
 
-    Preconditions.checkPrecondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPrecondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> x.intValue() < 23,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPrecondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> x.intValue() < 23,
+            x -> {
+              throw new Error("OUCH");
+            })));
   }
 
   @Test
   public void testPreconditionViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new RuntimeException("OUCH");
+            },
+            x -> "x")));
 
-    Preconditions.checkPrecondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPrecondition(
-      Integer.valueOf(23),
-      Contracts.condition(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPrecondition(
+          Integer.valueOf(23),
+          Contracts.condition(
+            x -> {
+              throw new Error("OUCH");
+            },
+            x -> "x")));
   }
 
   @Test
@@ -804,284 +874,274 @@ public final class PreconditionsTest
         x -> x.intValue() < 23,
         x -> String.format("Value %d must be < 23", x)));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
   public void testPreconditionSupplierException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(false, () -> {
+          throw new RuntimeException("OUCH");
+        }));
 
-    Preconditions.checkPrecondition(
-      false, () -> {
-        throw new RuntimeException("OUCH");
-      });
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionIntViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> String.format("Value %d must be < 23", Integer.valueOf(x)))));
 
-    Preconditions.checkPreconditionI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionIntViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Preconditions.checkPreconditionI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionIntViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionI(
-      23,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditionI(23, Contracts.conditionI(
+          x -> x < 23,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testPreconditionIntViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionI(23, Contracts.conditionI(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Preconditions.checkPreconditionI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionIntViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionI(
-      23,
-      Contracts.conditionI(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditionI(23, Contracts.conditionI(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testPreconditionInt()
   {
-    final int r = Preconditions.checkPreconditionI(
-      22,
-      Contracts.conditionI(
-        x -> x < 23,
-        x -> format("Value %d must be < 23", Integer.valueOf(x))));
+    final int r = Preconditions.checkPreconditionI(22, Contracts.conditionI(
+      x -> x < 23,
+      x -> String.format("Value %d must be < 23", Integer.valueOf(x))));
 
-    Assert.assertEquals(22L, (long) r);
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testPreconditionIntOther()
   {
-    final int r = Preconditions.checkPreconditionI(
-      22, true, x -> "OK");
-    Assert.assertEquals(22L, (long) r);
+    final int r =
+      Preconditions.checkPreconditionI(22, true, x -> "OK");
+    Assertions.assertEquals(22L, (long) r);
   }
 
   @Test
   public void testPreconditionLongViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> String.format("Value %d must be < 23", Long.valueOf(x)))));
 
-    Preconditions.checkPreconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionLongViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Preconditions.checkPreconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionLongViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditionL(23L, Contracts.conditionL(
+          x -> x < 23L,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testPreconditionLongViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionL(23L, Contracts.conditionL(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Preconditions.checkPreconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionLongViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionL(
-      23L,
-      Contracts.conditionL(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditionL(23L, Contracts.conditionL(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testPreconditionLong()
   {
-    final long r = Preconditions.checkPreconditionL(
-      22L,
-      Contracts.conditionL(
-        x -> x < 23L,
-        x -> format("Value %d must be < 23", Long.valueOf(x))));
+    final long r = Preconditions.checkPreconditionL(22L, Contracts.conditionL(
+      x -> x < 23L,
+      x -> String.format("Value %d must be < 23", Long.valueOf(x))));
 
-    Assert.assertEquals(22L, r);
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testPreconditionLongOther()
   {
-    final long r = Preconditions.checkPreconditionL(
-      22L, true, x -> "OK");
-    Assert.assertEquals(22L, r);
+    final long r =
+      Preconditions.checkPreconditionL(22L, true, x -> "OK");
+    Assertions.assertEquals(22L, r);
   }
 
   @Test
   public void testPreconditionDoubleViolation()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> String.format("Value %f must be < 23", Double.valueOf(x)))));
 
-    Preconditions.checkPreconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionDoubleViolationDescriberException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> {
+            throw new RuntimeException("OUCH");
+          })));
 
-    Preconditions.checkPreconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> {
-          throw new RuntimeException("OUCH");
-        }));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionDoubleViolationDescriberError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> x < 23.0,
-        x -> {
-          throw new Error("OUCH");
-        }));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditionD(23.0, Contracts.conditionD(
+          x -> x < 23.0,
+          x -> {
+            throw new Error("OUCH");
+          })));
   }
 
   @Test
   public void testPreconditionDoubleViolationPredicateException()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionD(23.0, Contracts.conditionD(
+          x -> {
+            throw new RuntimeException("OUCH");
+          },
+          x -> "x")));
 
-    Preconditions.checkPreconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> {
-          throw new RuntimeException("OUCH");
-        },
-        x -> "x"));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionDoubleViolationPredicateError()
   {
-    this.expected.expect(Error.class);
-
-    Preconditions.checkPreconditionD(
-      23.0,
-      Contracts.conditionD(
-        x -> {
-          throw new Error("OUCH");
-        },
-        x -> "x"));
+    final Error ex =
+      Assertions.assertThrows(
+        Error.class,
+        () -> Preconditions.checkPreconditionD(23.0, Contracts.conditionD(
+          x -> {
+            throw new Error("OUCH");
+          },
+          x -> "x")));
   }
 
   @Test
   public void testPreconditionDouble()
   {
-    final double r = Preconditions.checkPreconditionD(
-      22.0,
-      Contracts.conditionD(
+    final double r =
+      Preconditions.checkPreconditionD(22.0, Contracts.conditionD(
         x -> x < 23.0,
-        x -> format("Value %f must be < 23", Double.valueOf(x))));
+        x -> String.format("Value %f must be < 23", Double.valueOf(x))));
 
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
@@ -1089,37 +1149,45 @@ public final class PreconditionsTest
   {
     final double r = Preconditions.checkPreconditionD(
       22.0, true, x -> "OK");
-    Assert.assertEquals(22.0, r, 0.0);
+    Assertions.assertEquals(22.0, r, 0.00000001);
   }
 
   @Test
   public void testPreconditionSimpleViolation0()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(false, () -> "Value must true"));
 
-    Preconditions.checkPrecondition(false, () -> "Value must true");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionSimpleViolation1()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(false, "Value must true"));
 
-    Preconditions.checkPrecondition(false, "Value must true");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
   public void testPreconditionSimpleViolation2()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPrecondition(
+          Integer.valueOf(23),
+          23 < 23,
+          x -> String.format(
+            "Value %d must < 23",
+            x)));
 
-    Preconditions.checkPrecondition(
-      Integer.valueOf(23),
-      23 < 23,
-      x -> String.format("Value %d must < 23", x));
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -1138,9 +1206,11 @@ public final class PreconditionsTest
   public void testPreconditionSimple2()
   {
     final Integer r = Preconditions.checkPrecondition(
-      Integer.valueOf(22), true, x -> String.format("Value %d must < 23", x));
+      Integer.valueOf(22),
+      true,
+      x -> String.format("Value %d must < 23", x));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
@@ -1152,19 +1222,18 @@ public final class PreconditionsTest
       "Value %d must be < 23",
       Integer.valueOf(22));
 
-    Assert.assertEquals(Integer.valueOf(22), r);
+    Assertions.assertEquals(Integer.valueOf(22), r);
   }
 
   @Test
   public void testPreconditionVFailed()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex =
+      Assertions.assertThrows(
+        PreconditionViolationException.class,
+        () -> Preconditions.checkPreconditionV(Integer.valueOf(22), false, "Failed"));
 
-    Preconditions.checkPreconditionV(
-      Integer.valueOf(22),
-      false,
-      "Failed");
+    Assertions.assertEquals(1, ex.violations());
   }
 
   @Test
@@ -1179,38 +1248,13 @@ public final class PreconditionsTest
   @Test
   public void testPreconditionVNoValueFailed()
   {
-    this.expected.expect(PreconditionViolationException.class);
-    this.expected.expect(new ViolationMatcher(1));
+    final PreconditionViolationException ex = Assertions.assertThrows(
+      PreconditionViolationException.class,
+      () -> Preconditions.checkPreconditionV(
+        false,
+        "Value %d must be < 23",
+        Integer.valueOf(22)));
 
-    Preconditions.checkPreconditionV(
-      false,
-      "Value %d must be < 23",
-      Integer.valueOf(22));
-  }
-
-  private class ViolationMatcher extends TypeSafeMatcher<ContractException>
-  {
-    private final int expected;
-    private int count;
-
-    public ViolationMatcher(final int expected)
-    {
-      this.expected = expected;
-    }
-
-    @Override
-    protected boolean matchesSafely(final ContractException exception)
-    {
-      this.count = exception.violations();
-      return this.expected == this.count;
-    }
-
-    @Override
-    public void describeTo(final Description description)
-    {
-      description.appendValue(Integer.valueOf(this.count))
-        .appendText(" was returned instead of ")
-        .appendValue(Integer.valueOf(this.expected));
-    }
+    Assertions.assertEquals(1, ex.violations());
   }
 }

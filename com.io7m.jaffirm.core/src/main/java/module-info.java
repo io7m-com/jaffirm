@@ -14,26 +14,15 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jaffirm.tests.core;
+/**
+ * Core types and functions.
+ */
 
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-public final class SafeApplicationTest
+module com.io7m.jaffirm.core
 {
-  @Test
-  public void testUnreachable()
-    throws Exception
-  {
-    final Class<?> cc = Class.forName("com.io7m.jaffirm.core.SafeApplication");
+  requires static org.immutables.value;
 
-    final Constructor<?> c = cc.getDeclaredConstructor();
-    c.setAccessible(true);
+  requires com.io7m.junreachable.core;
 
-    Assertions.assertThrows(InvocationTargetException.class, c::newInstance);
-  }
+  exports com.io7m.jaffirm.core;
 }

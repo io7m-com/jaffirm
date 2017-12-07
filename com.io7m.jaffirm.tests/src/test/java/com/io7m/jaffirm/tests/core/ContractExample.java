@@ -19,10 +19,6 @@ package com.io7m.jaffirm.tests.core;
 import com.io7m.jaffirm.core.Contracts;
 import com.io7m.jaffirm.core.Preconditions;
 
-import static com.io7m.jaffirm.core.Contracts.conditionI;
-import static com.io7m.jaffirm.core.Preconditions.checkPreconditionI;
-import static com.io7m.jaffirm.core.Preconditions.checkPreconditionsI;
-
 public final class ContractExample
 {
   private ContractExample()
@@ -32,8 +28,14 @@ public final class ContractExample
 
   static int exampleSingles(final int x)
   {
-    Preconditions.checkPreconditionI(x, x > 0, i -> "Input " + i + " must be > 0");
-    Preconditions.checkPreconditionI(x, x % 2 == 0, i -> "Input " + i + " must be even");
+    Preconditions.checkPreconditionI(
+      x,
+      x > 0,
+      i -> "Input " + i + " must be > 0");
+    Preconditions.checkPreconditionI(
+      x,
+      x % 2 == 0,
+      i -> "Input " + i + " must be even");
     return x * 2;
   }
 
@@ -42,7 +44,9 @@ public final class ContractExample
     Preconditions.checkPreconditionsI(
       x,
       Contracts.conditionI(i -> i > 0, i -> "Input " + i + " must be > 0"),
-      Contracts.conditionI(i -> i % 2 == 0, i -> "Input " + i + " must be even"));
+      Contracts.conditionI(
+        i -> i % 2 == 0,
+        i -> "Input " + i + " must be even"));
     return x * 2;
   }
 
