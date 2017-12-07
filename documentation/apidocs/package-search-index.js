@@ -1,0 +1,1 @@
+packageSearchIndex = [{"m":"com.io7m.jaffirm.core","l":"com.io7m.jaffirm.core"},{"m":"com.io7m.jaffirm.documentation","l":"com.io7m.jaffirm.documentation"}]

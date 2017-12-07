@@ -1,0 +1,1 @@
+moduleSearchIndex = [{"l":"com.io7m.jaffirm.core"},{"l":"com.io7m.jaffirm.documentation"}]
