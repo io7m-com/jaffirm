@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor</artifactId>
-    <version>3.0.0-beta0001</version>
+    <version>3.0.0-beta0002</version>
   </parent>
 
   <groupId>com.io7m.jaffirm</groupId>
@@ -121,6 +121,13 @@
             <source>9</source>
             <target>9</target>
             <release>9</release>
+            <annotationProcessorPaths>
+              <dependency>
+                <groupId>org.immutables</groupId>
+                <artifactId>value</artifactId>
+                <version>${io7m.org.immutables.version}</version>
+              </dependency>
+            </annotationProcessorPaths>
           </configuration>
         </plugin>
 
