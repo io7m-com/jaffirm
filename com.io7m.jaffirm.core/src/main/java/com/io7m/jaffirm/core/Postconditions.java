@@ -78,7 +78,7 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
-      throw failed(value, violations);
+      throw failed(null, value, violations);
     }
     return value;
   }
@@ -102,7 +102,7 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAllInt(value, conditions);
     if (violations != null) {
-      throw failed(Integer.valueOf(value), violations);
+      throw failed(null, Integer.valueOf(value), violations);
     }
     return value;
   }
@@ -126,7 +126,7 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw failed(Long.valueOf(value), violations);
+      throw failed(null, Long.valueOf(value), violations);
     }
     return value;
   }
@@ -150,7 +150,7 @@ public final class Postconditions
   {
     final Violations violations = innerCheckAllDouble(value, conditions);
     if (violations != null) {
-      throw failed(Double.valueOf(value), violations);
+      throw failed(null, Double.valueOf(value), violations);
     }
     return value;
   }
@@ -204,7 +204,7 @@ public final class Postconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw failed(value, singleViolation(failedPredicate(e)));
+      throw failed(e, value, singleViolation(failedPredicate(e)));
     }
 
     return innerCheck(value, ok, describer);
@@ -251,7 +251,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw failed(
-        "<unspecified>", singleViolation(message));
+        null, "<unspecified>", singleViolation(message));
     }
   }
 
@@ -272,7 +272,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw failed(
-        "<unspecified>", singleViolation(applySupplierChecked(message)));
+        null, "<unspecified>", singleViolation(applySupplierChecked(message)));
     }
   }
 
@@ -303,7 +303,10 @@ public final class Postconditions
     final Object... objects)
   {
     if (!condition) {
-      throw failed(value, singleViolation(String.format(format, objects)));
+      throw failed(
+        null,
+        value,
+        singleViolation(String.format(format, objects)));
     }
     return value;
   }
@@ -376,6 +379,7 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw failed(
+        e,
         Integer.valueOf(value),
         singleViolation(failedPredicate(e)));
     }
@@ -448,6 +452,7 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw failed(
+        e,
         Long.valueOf(value),
         singleViolation(failedPredicate(e)));
     }
@@ -520,6 +525,7 @@ public final class Postconditions
       ok = predicate.test(value);
     } catch (final Throwable e) {
       throw failed(
+        e,
         Double.valueOf(value),
         singleViolation(failedPredicate(e)));
     }
@@ -555,6 +561,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw failed(
+        null,
         Double.valueOf(value),
         singleViolation(applyDescriberDChecked(value, describer)));
     }
@@ -568,6 +575,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw failed(
+        null,
         Long.valueOf(value),
         singleViolation(applyDescriberLChecked(value, describer)));
     }
@@ -581,6 +589,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw failed(
+        null,
         Integer.valueOf(value),
         singleViolation(applyDescriberIChecked(value, describer)));
     }
@@ -594,6 +603,7 @@ public final class Postconditions
   {
     if (!condition) {
       throw failed(
+        null,
         value,
         singleViolation(applyDescriberChecked(value, describer)));
     }
@@ -601,19 +611,21 @@ public final class Postconditions
   }
 
   private static <T> PostconditionViolationException failed(
+    final Throwable cause,
     final T value,
     final Violations violations)
   {
+    final String line_separator = System.lineSeparator();
     final StringBuilder sb = new StringBuilder(128);
     sb.append("Postcondition violation.");
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
 
     sb.append("  Received: ");
     sb.append(value);
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
 
     sb.append("  Violated conditions: ");
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
 
     final String[] messages = violations.messages();
     for (int index = 0; index < messages.length; ++index) {
@@ -622,12 +634,13 @@ public final class Postconditions
         sb.append(index);
         sb.append("]: ");
         sb.append(messages[index]);
-        sb.append(System.lineSeparator());
+        sb.append(line_separator);
       }
     }
 
     throw new PostconditionViolationException(
       sb.toString(),
+      cause,
       violations.count());
   }
 

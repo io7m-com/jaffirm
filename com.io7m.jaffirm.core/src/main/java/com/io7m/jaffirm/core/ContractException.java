@@ -27,6 +27,23 @@ public abstract class ContractException extends RuntimeException
   /**
    * Construct an exception.
    *
+   * @param cause         The cause
+   * @param message       The message
+   * @param in_violations The number of violated conditions
+   */
+
+  protected ContractException(
+    final String message,
+    final Throwable cause,
+    final int in_violations)
+  {
+    super(message, cause);
+    this.violations = in_violations;
+  }
+
+  /**
+   * Construct an exception.
+   *
    * @param message       The message
    * @param in_violations The number of violated conditions
    */
