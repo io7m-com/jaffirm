@@ -21,6 +21,7 @@
 module com.io7m.jaffirm.core
 {
   requires static org.immutables.value;
+  requires static com.io7m.immutables.style;
 
   requires com.io7m.junreachable.core;
 

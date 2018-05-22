@@ -16,18 +16,21 @@
 
 package com.io7m.jaffirm.core;
 
+import com.io7m.immutables.styles.ImmutablesStyleType;
 import org.immutables.value.Value;
 
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
+
+import static org.immutables.value.Value.Immutable;
 
 /**
  * A {@code long} specialized version of the {@link ContractConditionType}
  * type.
  */
 
-@Value.Immutable
-@AffirmImmutableStyleType
+@Immutable
+@ImmutablesStyleType
 public interface ContractLongConditionType
 {
   /**

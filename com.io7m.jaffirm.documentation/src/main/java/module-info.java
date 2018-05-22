@@ -21,6 +21,7 @@
 module com.io7m.jaffirm.documentation
 {
   requires com.io7m.jaffirm.core;
+  requires static com.io7m.immutables.style;
 
   exports com.io7m.jaffirm.documentation;
 }
