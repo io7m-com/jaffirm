@@ -12,8 +12,8 @@
   </ul>
 
   <h3>Example</h3>
-  <p>
-    <pre><![CDATA[import static com.io7m.jaffirm.core.Contracts.conditionI;
+
+  <pre><![CDATA[import static com.io7m.jaffirm.core.Contracts.conditionI;
 import static com.io7m.jaffirm.core.Preconditions.checkPreconditionI;
 import static com.io7m.jaffirm.core.Preconditions.checkPreconditionsI;
 
@@ -53,6 +53,5 @@ Exception in thread "main" com.io7m.jaffirm.core.PreconditionViolationException:
     [1]: Input -1 must be even
 
 ]]></pre>
-  </p>
 
 </div>
