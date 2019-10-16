@@ -10,7 +10,7 @@
 
   <groupId>com.io7m.jaffirm</groupId>
   <artifactId>com.io7m.jaffirm</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.jaffirm</name>
@@ -85,7 +85,7 @@
       <dependency>
         <groupId>com.io7m.junreachable</groupId>
         <artifactId>com.io7m.junreachable.core</artifactId>
-        <version>2.1.1</version>
+        <version>3.0.0</version>
       </dependency>
 
       <dependency>
