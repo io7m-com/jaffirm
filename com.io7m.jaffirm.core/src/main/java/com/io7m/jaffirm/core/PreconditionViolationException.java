@@ -25,6 +25,22 @@ public final class PreconditionViolationException extends ContractException
   /**
    * Construct an exception.
    *
+   * @param cause         The cause
+   * @param message       The message
+   * @param in_violations The number of violated conditions
+   */
+
+  public PreconditionViolationException(
+    final String message,
+    final Throwable cause,
+    final int in_violations)
+  {
+    super(message, cause, in_violations);
+  }
+
+  /**
+   * Construct an exception.
+   *
    * @param message       The message
    * @param in_violations The number of violated conditions
    */

@@ -106,13 +106,14 @@ final class SafeApplication
       throw (Error) exception;
     }
 
+    final String line_separator = System.lineSeparator();
     final StringBuilder sb = new StringBuilder(128);
     sb.append(prefix);
     sb.append(exception.getClass());
     sb.append(": ");
     sb.append(exception.getMessage());
-    sb.append(System.lineSeparator());
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
+    sb.append(line_separator);
     stackTraceToStringBuilder(exception, sb);
     return sb.toString();
   }
@@ -124,10 +125,10 @@ final class SafeApplication
     final StringWriter sw = new StringWriter();
     final PrintWriter pw = new PrintWriter(sw, true);
     exception.printStackTrace(pw);
-    sb.append(sw.toString());
+    sb.append(sw);
   }
 
-  static <T> String failedPredicate(
+  static String failedPredicate(
     final Throwable exception)
   {
     return failedApply(

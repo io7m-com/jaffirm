@@ -16,10 +16,13 @@
 
 package com.io7m.jaffirm.core;
 
+import com.io7m.immutables.styles.ImmutablesStyleType;
 import org.immutables.value.Value;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static org.immutables.value.Value.Immutable;
 
 /**
  * An individual predicate in a contract.
@@ -27,8 +30,8 @@ import java.util.function.Predicate;
  * @param <T> The type of input values
  */
 
-@Value.Immutable
-@AffirmImmutableStyleType
+@Immutable
+@ImmutablesStyleType
 public interface ContractConditionType<T>
 {
   /**

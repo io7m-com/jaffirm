@@ -78,7 +78,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAll(value, conditions);
     if (violations != null) {
-      throw failed(value, violations);
+      throw new PreconditionViolationException(
+        failedMessage(value, violations), null, violations.count());
     }
     return value;
   }
@@ -102,7 +103,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAllInt(value, conditions);
     if (violations != null) {
-      throw failed(Integer.valueOf(value), violations);
+      throw new PreconditionViolationException(
+        failedMessage(Integer.valueOf(value), violations), null, violations.count());
     }
     return value;
   }
@@ -126,7 +128,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAllLong(value, conditions);
     if (violations != null) {
-      throw failed(Long.valueOf(value), violations);
+      throw new PreconditionViolationException(
+        failedMessage(Long.valueOf(value), violations), null, violations.count());
     }
     return value;
   }
@@ -150,7 +153,8 @@ public final class Preconditions
   {
     final Violations violations = innerCheckAllDouble(value, conditions);
     if (violations != null) {
-      throw failed(Double.valueOf(value), violations);
+      throw new PreconditionViolationException(
+        failedMessage(Double.valueOf(value), violations), null, violations.count());
     }
     return value;
   }
@@ -204,7 +208,9 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw failed(value, singleViolation(failedPredicate(e)));
+      final Violations violations = singleViolation(failedPredicate(e));
+      throw new PreconditionViolationException(
+        failedMessage(value, violations), e, violations.count());
     }
 
     return innerCheck(value, ok, describer);
@@ -250,7 +256,9 @@ public final class Preconditions
     throws PreconditionViolationException
   {
     if (!condition) {
-      throw failed("<unspecified>", singleViolation(message));
+      final Violations violations = singleViolation(message);
+      throw new PreconditionViolationException(
+        failedMessage("<unspecified>", violations), null, violations.count());
     }
   }
 
@@ -270,8 +278,9 @@ public final class Preconditions
     throws PreconditionViolationException
   {
     if (!condition) {
-      throw failed(
-        "<unspecified>", singleViolation(applySupplierChecked(message)));
+      final Violations violations = singleViolation(applySupplierChecked(message));
+      throw new PreconditionViolationException(
+        failedMessage("<unspecified>", violations), null, violations.count());
     }
   }
 
@@ -301,7 +310,9 @@ public final class Preconditions
     final Object... objects)
   {
     if (!condition) {
-      throw failed(value, singleViolation(String.format(format, objects)));
+      final Violations violations = singleViolation(String.format(format, objects));
+      throw new PreconditionViolationException(
+        failedMessage(value, violations), null, violations.count());
     }
     return value;
   }
@@ -372,9 +383,9 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw failed(
-        Integer.valueOf(value),
-        singleViolation(failedPredicate(e)));
+      final Violations violations = singleViolation(failedPredicate(e));
+      throw new PreconditionViolationException(
+        failedMessage(Integer.valueOf(value), violations), e, violations.count());
     }
 
     return innerCheckI(value, ok, describer);
@@ -444,9 +455,9 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw failed(
-        Long.valueOf(value),
-        singleViolation(failedPredicate(e)));
+      final Violations violations = singleViolation(failedPredicate(e));
+      throw new PreconditionViolationException(
+        failedMessage(Long.valueOf(value), violations), e, violations.count());
     }
 
     return innerCheckL(value, ok, describer);
@@ -516,9 +527,9 @@ public final class Preconditions
     try {
       ok = predicate.test(value);
     } catch (final Throwable e) {
-      throw failed(
-        Double.valueOf(value),
-        singleViolation(failedPredicate(e)));
+      final Violations violations = singleViolation(failedPredicate(e));
+      throw new PreconditionViolationException(
+        failedMessage(Double.valueOf(value), violations), e, violations.count());
     }
 
     return innerCheckD(value, ok, describer);
@@ -551,9 +562,9 @@ public final class Preconditions
     final Function<T, String> describer)
   {
     if (!condition) {
-      throw failed(
-        value,
-        singleViolation(applyDescriberChecked(value, describer)));
+      final Violations violations = singleViolation(applyDescriberChecked(value, describer));
+      throw new PreconditionViolationException(
+        failedMessage(value, violations), null, violations.count());
     }
     return value;
   }
@@ -564,9 +575,9 @@ public final class Preconditions
     final IntFunction<String> describer)
   {
     if (!condition) {
-      throw failed(
-        Integer.valueOf(value),
-        singleViolation(applyDescriberIChecked(value, describer)));
+      final Violations violations = singleViolation(applyDescriberIChecked(value, describer));
+      throw new PreconditionViolationException(
+        failedMessage(Integer.valueOf(value), violations), null, violations.count());
     }
     return value;
   }
@@ -577,9 +588,9 @@ public final class Preconditions
     final LongFunction<String> describer)
   {
     if (!condition) {
-      throw failed(
-        Long.valueOf(value),
-        singleViolation(applyDescriberLChecked(value, describer)));
+      final Violations violations = singleViolation(applyDescriberLChecked(value, describer));
+      throw new PreconditionViolationException(
+        failedMessage(Long.valueOf(value), violations), null, violations.count());
     }
     return value;
   }
@@ -590,27 +601,29 @@ public final class Preconditions
     final DoubleFunction<String> describer)
   {
     if (!condition) {
-      throw failed(
-        Double.valueOf(value),
-        singleViolation(applyDescriberDChecked(value, describer)));
+      final Violations violations = singleViolation(applyDescriberDChecked(value, describer));
+      throw new PreconditionViolationException(
+        failedMessage(Double.valueOf(value), violations), null, violations.count());
     }
     return value;
   }
 
-  private static <T> PreconditionViolationException failed(
+  private static <T> String failedMessage(
     final T value,
     final Violations violations)
   {
+    final String line_separator = System.lineSeparator();
+
     final StringBuilder sb = new StringBuilder(128);
     sb.append("Precondition violation.");
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
 
     sb.append("  Received: ");
     sb.append(value);
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
 
     sb.append("  Violated conditions: ");
-    sb.append(System.lineSeparator());
+    sb.append(line_separator);
 
     final String[] messages = violations.messages();
     for (int index = 0; index < messages.length; ++index) {
@@ -619,10 +632,10 @@ public final class Preconditions
         sb.append(index);
         sb.append("]: ");
         sb.append(messages[index]);
-        sb.append(System.lineSeparator());
+        sb.append(line_separator);
       }
     }
 
-    throw new PreconditionViolationException(sb.toString(), violations.count());
+    return sb.toString();
   }
 }

@@ -32,7 +32,7 @@ final class Violations
   private final String[] messages;
   private int count;
 
-  Violations(final int expected)
+  private Violations(final int expected)
   {
     this.messages = new String[expected];
     this.count = 0;
@@ -47,9 +47,10 @@ final class Violations
     return violations;
   }
 
+  @SafeVarargs
   static <T> Violations innerCheckAll(
     final T value,
-    final ContractConditionType<T>[] conditions)
+    final ContractConditionType<T>... conditions)
   {
     Violations violations = null;
 
@@ -80,7 +81,7 @@ final class Violations
 
   static Violations innerCheckAllInt(
     final int value,
-    final ContractIntConditionType[] conditions)
+    final ContractIntConditionType... conditions)
   {
     Violations violations = null;
 
@@ -111,7 +112,7 @@ final class Violations
 
   static Violations innerCheckAllLong(
     final long value,
-    final ContractLongConditionType[] conditions)
+    final ContractLongConditionType... conditions)
   {
     Violations violations = null;
 
@@ -142,7 +143,7 @@ final class Violations
 
   static Violations innerCheckAllDouble(
     final double value,
-    final ContractDoubleConditionType[] conditions)
+    final ContractDoubleConditionType... conditions)
   {
     Violations violations = null;
 
@@ -171,7 +172,7 @@ final class Violations
     return violations;
   }
 
-  static Violations maybeAllocate(
+  private static Violations maybeAllocate(
     final Violations violations,
     final int count)
   {
@@ -188,7 +189,7 @@ final class Violations
     return this.count;
   }
 
-  void countUp()
+  private void countUp()
   {
     ++this.count;
   }
