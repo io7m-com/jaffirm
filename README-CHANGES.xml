@@ -31,11 +31,16 @@
         <c:change compatible="false" date="2017-11-04T00:00:00+00:00" summary="Remove com.io7m.jnull dependency."/>
       </c:changes>
     </c:release>
-    <c:release date="2019-06-23T11:58:29+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.0">
+    <c:release date="2019-06-23T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.0">
       <c:changes>
         <c:change compatible="false" date="2018-05-17T00:00:00+00:00" summary="Remove checkstyle module and use common checkstyle rules"/>
         <c:change date="2018-05-17T00:00:00+00:00" summary="Use newest primogenitor"/>
-        <c:change compatible="false" date="2019-06-23T11:58:29+00:00" summary="Require JDK 11"/>
+        <c:change compatible="false" date="2019-06-23T00:00:00+00:00" summary="Require JDK 11"/>
+      </c:changes>
+    </c:release>
+    <c:release date="2019-10-16T16:32:47+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.1">
+      <c:changes>
+        <c:change date="2019-10-16T16:32:47+00:00" summary="Use correct junreachable 3.0.0 release"/>
       </c:changes>
     </c:release>
   </c:releases>
