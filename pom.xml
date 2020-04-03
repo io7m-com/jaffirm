@@ -117,7 +117,7 @@
       <dependency>
         <groupId>com.io7m.primogenitor</groupId>
         <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>3.6.0</version>
+        <version>3.8.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
