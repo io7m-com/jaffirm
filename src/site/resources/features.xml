@@ -5,7 +5,7 @@
     <li>Static invocation, zero-allocation code paths for the common case of non-failing contracts</li>
     <li>Specialized and generic variants of all functions for use in low-latency software</li>
     <li>Detailed contract failure messages by construction</li>
-    <li>Written in pure Java 9</li>
+    <li>Written in pure Java 11</li>
     <li>100% automated unit test coverage</li>
     <li><a href="https://www.osgi.org/">OSGi</a>-ready</li>
     <li>ISC license</li>
