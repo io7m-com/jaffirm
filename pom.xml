@@ -14,7 +14,7 @@
 
   <groupId>com.io7m.jaffirm</groupId>
   <artifactId>com.io7m.jaffirm</artifactId>
-  <version>3.0.3-SNAPSHOT</version>
+  <version>3.0.3</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.jaffirm</name>
