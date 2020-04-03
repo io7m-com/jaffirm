@@ -48,9 +48,14 @@
         <c:change date="2020-04-03T00:00:00+00:00" summary="Use primogenitor 3.6.0"/>
       </c:changes>
     </c:release>
-    <c:release date="2020-04-03T13:15:24+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.3">
+    <c:release date="2020-04-03T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.3">
       <c:changes>
-        <c:change date="2020-04-03T13:15:24+00:00" summary="Use primogenitor 3.7.0"/>
+        <c:change date="2020-04-03T00:00:00+00:00" summary="Use primogenitor 3.7.0"/>
+      </c:changes>
+    </c:release>
+    <c:release date="2020-04-03T13:51:26+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.4">
+      <c:changes>
+        <c:change date="2020-04-03T13:51:26+00:00" summary="Use primogenitor 3.8.0"/>
       </c:changes>
     </c:release>
   </c:releases>
