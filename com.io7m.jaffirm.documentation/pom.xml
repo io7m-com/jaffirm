@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>com.io7m.jaffirm</artifactId>
-    <version>3.0.4</version>
+    <version>4.0.0</version>
   </parent>
 
   <artifactId>com.io7m.jaffirm.documentation</artifactId>
@@ -17,7 +17,7 @@
 
   <name>com.io7m.jaffirm.documentation</name>
   <description>Contract checking (Documentation)</description>
-  <url>http://io7m.github.io/jaffirm/</url>
+  <url>https://www.io7m.com/software/jaffirm</url>
 
   <properties>
     <mdep.analyze.skip>true</mdep.analyze.skip>
@@ -35,6 +35,16 @@
       <artifactId>com.io7m.primogenitor.support</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.bundle</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>

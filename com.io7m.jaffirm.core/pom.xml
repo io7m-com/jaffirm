@@ -8,14 +8,14 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>com.io7m.jaffirm</artifactId>
-    <version>3.0.4</version>
+    <version>4.0.0</version>
   </parent>
   <artifactId>com.io7m.jaffirm.core</artifactId>
 
   <packaging>jar</packaging>
   <name>com.io7m.jaffirm.core</name>
   <description>Contract checking (Core)</description>
-  <url>http://io7m.github.io/jaffirm/</url>
+  <url>https://www.io7m.com/software/jaffirm</url>
 
   <dependencies>
     <dependency>
@@ -23,6 +23,16 @@
       <artifactId>com.io7m.junreachable.core</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.bundle</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
@@ -37,35 +47,6 @@
 
   <build>
     <plugins>
-      <!-- Check style -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-
-      <!-- Analyze semantic versioning -->
-      <plugin>
-        <groupId>biz.aQute.bnd</groupId>
-        <artifactId>bnd-baseline-maven-plugin</artifactId>
-      </plugin>
-
-      <!-- Spot bugs -->
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-      </plugin>
-
-      <!-- Produce OSGi manifest -->
-      <plugin>
-        <groupId>biz.aQute.bnd</groupId>
-        <artifactId>bnd-maven-plugin</artifactId>
-        <configuration>
-          <bnd><![CDATA[
-            Export-Package: com.io7m.jaffirm.core
-]]></bnd>
-        </configuration>
-      </plugin>
-
       <!-- Determine test coverage -->
       <plugin>
         <groupId>org.jacoco</groupId>

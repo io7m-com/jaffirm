@@ -8,14 +8,14 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>com.io7m.jaffirm</artifactId>
-    <version>3.0.4</version>
+    <version>4.0.0</version>
   </parent>
   <artifactId>com.io7m.jaffirm.tests</artifactId>
 
   <packaging>jar</packaging>
   <name>com.io7m.jaffirm.tests</name>
   <description>Contract checking (Unit tests)</description>
-  <url>http://io7m.github.io/jaffirm/</url>
+  <url>https://www.io7m.com/software/jaffirm</url>
 
   <properties>
     <mdep.analyze.skip>true</mdep.analyze.skip>

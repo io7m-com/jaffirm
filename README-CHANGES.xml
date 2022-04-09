@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <c:changelog project="com.io7m.jaffirm" xmlns:c="urn:com.io7m.changelog:4.0">
   <c:releases>
-    <c:release date="2016-08-26T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="0.1.0">
+    <c:release date="2016-08-26T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="0.1.0">
       <c:changes>
         <c:change date="2016-08-26T00:00:00+00:00" summary="Initial release."/>
       </c:changes>
     </c:release>
-    <c:release date="2017-02-22T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="1.0.0">
+    <c:release date="2017-02-22T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="1.0.0">
       <c:changes>
         <c:change date="2017-02-22T00:00:00+00:00" summary="Initial API-stable release."/>
       </c:changes>
     </c:release>
-    <c:release date="2017-04-05T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="1.0.1">
+    <c:release date="2017-04-05T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="1.0.1">
       <c:changes>
         <c:change date="2017-04-05T00:00:00+00:00" summary="Rename project. Use the new primogenitor POM and 2017 project conventions. Move documentation to kstructural."/>
       </c:changes>
     </c:release>
-    <c:release date="2017-04-07T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="1.1.0">
+    <c:release date="2017-04-07T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="1.1.0">
       <c:changes>
         <c:change date="2017-04-07T00:00:00+00:00" summary="Add variadic preconditions/postconditions/invariants.">
           <c:tickets>
@@ -25,37 +25,42 @@
         </c:change>
       </c:changes>
     </c:release>
-    <c:release date="2017-11-04T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="2.0.0">
+    <c:release date="2017-11-04T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="2.0.0">
       <c:changes>
         <c:change compatible="false" date="2017-11-04T00:00:00+00:00" summary="Require JDK 9 and publish a Java 9 module."/>
         <c:change compatible="false" date="2017-11-04T00:00:00+00:00" summary="Remove com.io7m.jnull dependency."/>
       </c:changes>
     </c:release>
-    <c:release date="2019-06-23T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.0">
+    <c:release date="2019-06-23T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="3.0.0">
       <c:changes>
         <c:change compatible="false" date="2018-05-17T00:00:00+00:00" summary="Remove checkstyle module and use common checkstyle rules"/>
         <c:change date="2018-05-17T00:00:00+00:00" summary="Use newest primogenitor"/>
         <c:change compatible="false" date="2019-06-23T00:00:00+00:00" summary="Require JDK 11"/>
       </c:changes>
     </c:release>
-    <c:release date="2019-10-16T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.1">
+    <c:release date="2019-10-16T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="3.0.1">
       <c:changes>
         <c:change date="2019-10-16T00:00:00+00:00" summary="Use correct junreachable 3.0.0 release"/>
       </c:changes>
     </c:release>
-    <c:release date="2020-04-03T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.2">
+    <c:release date="2020-04-03T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="3.0.2">
       <c:changes>
         <c:change date="2020-04-03T00:00:00+00:00" summary="Use primogenitor 3.6.0"/>
       </c:changes>
     </c:release>
-    <c:release date="2020-04-03T00:00:00+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.3">
+    <c:release date="2020-04-03T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="3.0.3">
       <c:changes>
         <c:change date="2020-04-03T00:00:00+00:00" summary="Use primogenitor 3.7.0"/>
       </c:changes>
     </c:release>
-    <c:release date="2020-04-03T13:51:26+00:00" ticket-system="com.github.io7m.jaffirm" version="3.0.4">
+    <c:release date="2020-04-03T00:00:00+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="3.0.4">
       <c:changes>
-        <c:change date="2020-04-03T13:51:26+00:00" summary="Use primogenitor 3.8.0"/>
+        <c:change date="2020-04-03T00:00:00+00:00" summary="Use primogenitor 3.8.0"/>
+      </c:changes>
+    </c:release>
+    <c:release date="2022-04-09T12:44:57+00:00" is-open="false" ticket-system="com.github.io7m.jaffirm" version="4.0.0">
+      <c:changes>
+        <c:change compatible="false" date="2022-04-09T00:00:00+00:00" summary="Require JDK 17"/>
       </c:changes>
     </c:release>
   </c:releases>
