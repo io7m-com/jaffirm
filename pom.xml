@@ -29,12 +29,12 @@
 
   <properties>
     <io7m.api.previousVersion>4.0.0</io7m.api.previousVersion>
-    <io7m.org.immutables.version>2.6.0</io7m.org.immutables.version>
+    <io7m.org.immutables.version>2.9.3</io7m.org.immutables.version>
   </properties>
 
   <licenses>
     <license>
-      <name>ISC License</name>
+      <name>ISC</name>
       <url>https://io7m.com/license/isc.txt</url>
     </license>
   </licenses>
@@ -106,12 +106,12 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.8.2</version>
+        <version>5.9.3</version>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.8.2</version>
+        <version>5.9.3</version>
       </dependency>
 
       <dependency>
