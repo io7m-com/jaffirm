@@ -29,7 +29,7 @@
 
   <properties>
     <io7m.api.previousVersion>4.0.0</io7m.api.previousVersion>
-    <io7m.org.immutables.version>2.9.3</io7m.org.immutables.version>
+    <io7m.org.immutables.version>2.10.0</io7m.org.immutables.version>
   </properties>
 
   <licenses>
@@ -106,12 +106,12 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.9.3</version>
+        <version>5.10.1</version>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.9.3</version>
+        <version>5.10.1</version>
       </dependency>
 
       <dependency>
