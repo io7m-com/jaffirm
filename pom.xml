@@ -41,9 +41,9 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/io7m/jaffirm</url>
-    <connection>scm:git:https://github.com/io7m/jaffirm</connection>
-    <developerConnection>scm:git:https://github.com/io7m/jaffirm</developerConnection>
+    <url>https://www.github.com/io7m-com/jaffirm</url>
+    <connection>scm:git:https://www.github.com/io7m-com/jaffirm</connection>
+    <developerConnection>scm:git:https://www.github.com/io7m-com/jaffirm</developerConnection>
   </scm>
 
   <developers>
@@ -56,7 +56,7 @@
   </developers>
 
   <issueManagement>
-    <url>https://github.com/io7m/jaffirm/issues</url>
+    <url>https://www.github.com/io7m-com/jaffirm/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 

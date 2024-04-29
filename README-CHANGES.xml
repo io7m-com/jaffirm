@@ -65,6 +65,6 @@
     </c:release>
   </c:releases>
   <c:ticket-systems>
-    <c:ticket-system default="false" id="com.github.io7m.jaffirm" url="https://github.com/io7m/jaffirm/issues/"/>
+    <c:ticket-system default="false" id="com.github.io7m.jaffirm" url="https://www.github.com/io7m-com/jaffirm/issues/"/>
   </c:ticket-systems>
 </c:changelog>
