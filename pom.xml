@@ -23,7 +23,6 @@
 
   <modules>
     <module>com.io7m.jaffirm.core</module>
-    <module>com.io7m.jaffirm.documentation</module>
     <module>com.io7m.jaffirm.tests</module>
   </modules>
 
@@ -150,13 +149,6 @@
               </dependency>
             </annotationProcessorPaths>
           </configuration>
-        </plugin>
-
-        <!-- KStructural Maven Plugin -->
-        <plugin>
-          <groupId>com.io7m.kstructural</groupId>
-          <artifactId>io7m-kstructural-maven-plugin</artifactId>
-          <version>0.3.1</version>
         </plugin>
 
         <!-- Spot bugs -->
