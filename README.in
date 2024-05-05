@@ -9,7 +9,7 @@ checking functions.
 * Static invocation, zero-allocation code paths for the common case of non-failing contracts.
 * Specialized and generic variants of all functions for use in low-latency software.
 * Detailed contract failure messages by construction.
-* Written in pure Java 21.
+* Written in pure Java 17.
 * High coverage test suite.
 * [OSGi-ready](https://www.osgi.org/)
 * [JPMS-ready](https://en.wikipedia.org/wiki/Java_Platform_Module_System)
