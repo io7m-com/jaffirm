@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>com.io7m.jaffirm</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
   </parent>
   <artifactId>com.io7m.jaffirm.tests</artifactId>
 
@@ -19,6 +19,8 @@
 
   <properties>
     <mdep.analyze.skip>true</mdep.analyze.skip>
+    <checkstyle.skip>true</checkstyle.skip>
+    <spotbugs.skip>true</spotbugs.skip>
   </properties>
 
   <dependencies>
@@ -31,12 +33,10 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

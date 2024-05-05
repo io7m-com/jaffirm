@@ -9,12 +9,12 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor.full</artifactId>
-    <version>7.0.0</version>
+    <version>8.2.0</version>
   </parent>
 
   <groupId>com.io7m.jaffirm</groupId>
   <artifactId>com.io7m.jaffirm</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
 
   <packaging>pom</packaging>
   <name>com.io7m.jaffirm</name>
@@ -23,26 +23,26 @@
 
   <modules>
     <module>com.io7m.jaffirm.core</module>
-    <module>com.io7m.jaffirm.documentation</module>
     <module>com.io7m.jaffirm.tests</module>
   </modules>
 
   <properties>
-    <io7m.api.previousVersion>3.0.4</io7m.api.previousVersion>
-    <io7m.org.immutables.version>2.6.0</io7m.org.immutables.version>
+    <io7m.api.previousVersion>4.0.0</io7m.api.previousVersion>
+    <io7m.java.targetJavaVersion>17</io7m.java.targetJavaVersion>
+    <io7m.org.immutables.version>2.10.1</io7m.org.immutables.version>
   </properties>
 
   <licenses>
     <license>
-      <name>ISC License</name>
+      <name>ISC</name>
       <url>https://io7m.com/license/isc.txt</url>
     </license>
   </licenses>
 
   <scm>
-    <url>https://github.com/io7m/jaffirm</url>
-    <connection>scm:git:https://github.com/io7m/jaffirm</connection>
-    <developerConnection>scm:git:https://github.com/io7m/jaffirm</developerConnection>
+    <url>https://www.github.com/io7m-com/jaffirm</url>
+    <connection>scm:git:https://www.github.com/io7m-com/jaffirm</connection>
+    <developerConnection>scm:git:https://www.github.com/io7m-com/jaffirm</developerConnection>
   </scm>
 
   <developers>
@@ -55,7 +55,7 @@
   </developers>
 
   <issueManagement>
-    <url>https://github.com/io7m/jaffirm/issues</url>
+    <url>https://www.github.com/io7m-com/jaffirm/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
@@ -67,11 +67,11 @@
     </site>
     <repository>
       <id>sonatype-nexus-staging</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -89,7 +89,7 @@
       <dependency>
         <groupId>com.io7m.junreachable</groupId>
         <artifactId>com.io7m.junreachable.core</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.2</version>
       </dependency>
 
       <dependency>
@@ -98,26 +98,26 @@
         <version>${io7m.org.immutables.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.io7m.immutables.style</groupId>
-        <artifactId>com.io7m.immutables.style</artifactId>
-        <version>0.0.1</version>
+        <groupId>com.io7m.immutables-style</groupId>
+        <artifactId>com.io7m.immutables-style</artifactId>
+        <version>1.0.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.8.2</version>
+        <version>5.10.2</version>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.8.2</version>
+        <version>5.10.2</version>
       </dependency>
 
       <dependency>
         <groupId>com.io7m.primogenitor</groupId>
         <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>7.0.0</version>
+        <version>8.2.0</version>
       </dependency>
 
       <dependency>
@@ -149,13 +149,6 @@
               </dependency>
             </annotationProcessorPaths>
           </configuration>
-        </plugin>
-
-        <!-- KStructural Maven Plugin -->
-        <plugin>
-          <groupId>com.io7m.kstructural</groupId>
-          <artifactId>io7m-kstructural-maven-plugin</artifactId>
-          <version>0.3.1</version>
         </plugin>
 
         <!-- Spot bugs -->
