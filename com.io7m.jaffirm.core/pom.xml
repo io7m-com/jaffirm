@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.jaffirm</groupId>
     <artifactId>com.io7m.jaffirm</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.1</version>
   </parent>
   <artifactId>com.io7m.jaffirm.core</artifactId>
 
@@ -39,8 +39,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.io7m.immutables.style</groupId>
-      <artifactId>com.io7m.immutables.style</artifactId>
+      <groupId>com.io7m.immutables-style</groupId>
+      <artifactId>com.io7m.immutables-style</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
