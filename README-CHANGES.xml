@@ -63,11 +63,12 @@
         <c:change compatible="false" date="2022-04-09T00:00:00+00:00" summary="Require JDK 17"/>
       </c:changes>
     </c:release>
-    <c:release date="2024-05-05T00:00:00+00:00" is-open="true" ticket-system="com.github.io7m.jaffirm" version="4.0.1">
+    <c:release date="2024-05-05T14:58:30+00:00" is-open="true" ticket-system="com.github.io7m.jaffirm" version="4.0.1">
       <c:changes>
-        <c:change date="2024-04-19T20:15:44+00:00" summary="Update org.immutables:value:2.10.0 → 2.10.1."/>
-        <c:change date="2024-04-19T20:15:47+00:00" summary="Update org.junit.jupiter:junit-jupiter-api:5.10.1 → 5.10.2."/>
-        <c:change date="2024-04-19T20:15:52+00:00" summary="Update org.junit.jupiter:junit-jupiter-engine:5.10.1 → 5.10.2."/>
+        <c:change date="2024-04-19T00:00:00+00:00" summary="Update org.immutables:value:2.10.0 → 2.10.1."/>
+        <c:change date="2024-04-19T00:00:00+00:00" summary="Update org.junit.jupiter:junit-jupiter-api:5.10.1 → 5.10.2."/>
+        <c:change date="2024-04-19T00:00:00+00:00" summary="Update org.junit.jupiter:junit-jupiter-engine:5.10.1 → 5.10.2."/>
+        <c:change date="2024-05-05T14:58:30+00:00" summary="Update com.io7m.junreachable:com.io7m.junreachable.core 4.0.0 → 4.0.1."/>
       </c:changes>
     </c:release>
   </c:releases>
