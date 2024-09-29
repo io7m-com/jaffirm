@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,20 +14,15 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * Core types and functions.
- */
 
-module com.io7m.jaffirm.core
+open module com.io7m.jaffirm.tests
 {
-  requires static com.io7m.immutables.style;
-  requires static org.immutables.value;
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  requires org.junit.jupiter.api;
+  requires org.junit.jupiter.engine;
+  requires org.junit.platform.commons;
+  requires org.junit.platform.engine;
+  requires org.junit.platform.launcher;
+  requires com.io7m.jaffirm.core;
 
-  requires com.io7m.junreachable.core;
-
-  exports com.io7m.jaffirm.core;
-
-  opens com.io7m.jaffirm.core to com.io7m.jaffirm.tests;
+  exports com.io7m.jaffirm.tests.core;
 }

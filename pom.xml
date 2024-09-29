@@ -27,9 +27,15 @@
   </modules>
 
   <properties>
+    <!-- Configuration. -->
     <io7m.api.previousVersion>4.0.1</io7m.api.previousVersion>
     <io7m.java.targetJavaVersion>17</io7m.java.targetJavaVersion>
+
+    <!-- io7m dependencies. -->
     <io7m.org.immutables.version>2.10.1</io7m.org.immutables.version>
+
+    <!-- Third-party dependencies. -->
+    <org.junit.version>5.11.1</org.junit.version>
   </properties>
 
   <licenses>
@@ -104,14 +110,11 @@
       </dependency>
 
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.10.3</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>5.10.3</version>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${org.junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <dependency>
